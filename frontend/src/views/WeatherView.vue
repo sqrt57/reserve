@@ -9,8 +9,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import axios from 'axios'
+import { onMounted, ref } from 'vue';
+import axios from 'axios';
 
 const weatherData = ref();
 
