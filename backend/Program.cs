@@ -1,3 +1,4 @@
+using backend.Security;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,14 +6,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddAuthentication(options =>
     {
-        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultScheme = AuthSchemeConstants.MarsAuthScheme;
     })
-    .AddCookie(options =>
-    {
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
-        options.SlidingExpiration = true;
-    });
+    .AddScheme<MarsAuthSchemeOptions, MarsAuthHandler>(
+        AuthSchemeConstants.MarsAuthScheme, options => { });
 builder.Services.AddAuthorization();
+builder.Services.AddMemoryCache();
+builder.Services.Add(ServiceDescriptor.Singleton<ISessions, MemorySessions>());
 
 var app = builder.Build();
 
@@ -21,6 +21,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -33,6 +33,8 @@ const onLogin = async (formElement: FormInstance | undefined) => {
     if (!formElement) return;
     if (!await formElement.validate()) return;
     const result = await axios.post(getApiUrl() + 'account/login', loginForm);
+    console.log(result.data);
+    window.localStorage["sessionId"] = result.data.sessionId;
     router.push({ name: 'hall', });
 };
 </script>

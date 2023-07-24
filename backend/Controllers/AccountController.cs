@@ -1,7 +1,10 @@
 using System.Security.Claims;
 using backend.Dto;
+using backend.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,16 +15,19 @@ namespace backend.Controllers;
 public class AccountController : ControllerBase
 {
     private readonly ILogger<AccountController> _logger;
+    private readonly ISessions _sessions;
 
 
     public AccountController(
-        ILogger<AccountController> logger)
+        ILogger<AccountController> logger,
+        ISessions sessions)
     {
         _logger = logger;
+        _sessions = sessions;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login(LoginDataDto loginDataDto)
+    public IActionResult Login(LoginDataDto loginDataDto)
     {
         if (loginDataDto.Login == null || loginDataDto.Password == null)
             return Unauthorized(new LoginResultDto {Error = "Empty login/password"});
@@ -37,18 +43,11 @@ public class AccountController : ControllerBase
             var claimsIdentity = new ClaimsIdentity(
                 claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = true,
-                ExpiresUtc = DateTime.UtcNow.AddMinutes(20),
-            };
-            
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme, 
-                new ClaimsPrincipal(claimsIdentity), 
-                authProperties);
-            
-            return Ok(new {loggedInAs = "admin"});
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+            var sessionId = _sessions.Create(claimsPrincipal);
+
+            return Ok(new LoginResultDto {SessionId = sessionId,});
         }
         else
         {
@@ -57,11 +56,12 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Logout()
+    [Authorize]
+    public IActionResult Logout()
     {
-        await HttpContext.SignOutAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme);
-
+        var sessionId = HttpContext.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult?.Properties?.Items["SessionId"];
+        if (sessionId != null)
+            _sessions.Remove(sessionId);
         return Ok();
     }
 }
