@@ -1,4 +1,4 @@
-namespace backend;
+namespace backend.Dto;
 
 public class WeatherForecast
 {
