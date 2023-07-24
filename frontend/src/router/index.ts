@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginView from '../views/LoginView.vue';
-import TestView from '../views/TestView.vue';
 import HallView from '../views/HallView.vue';
 import VisitorsView from '../views/VisitorsView.vue';
+import WeatherView from '../views/WeatherView.vue';
 import GoodsAndServicesView from '../views/GoodsAndServicesView.vue';
 import AdminView from '../views/AdminView.vue';
 
@@ -19,16 +19,16 @@ const router = createRouter({
             component: LoginView,
         },
         {
-            path: '/test',
-            name: 'test',
-            component: TestView,
-        },
-        {
             path: '/hall',
             name: 'hall',
-            redirect: { name: 'visitors' },
+            redirect: { name: 'weather' },
             component: HallView,
             children: [
+                {
+                    path: 'weather',
+                    name: 'weather',
+                    component: WeatherView,
+                },
                 {
                     path: 'visitors',
                     name: 'visitors',

@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import type { FormInstance, FormRules } from 'element-plus';
 import axios from 'axios';
 
-import { getApiUrl } from '../services/path';
+import { getApiUrl } from '@/services/path';
 
 const router = useRouter();
 
@@ -32,7 +32,7 @@ const rules = reactive<FormRules<LoginForm>>({
 const onLogin = async (formElement: FormInstance | undefined) => {
     if (!formElement) return;
     if (!await formElement.validate()) return;
-    const result = await axios.post(getApiUrl() + 'login', loginForm);
+    const result = await axios.post(getApiUrl() + 'account/login', loginForm);
     router.push({ name: 'hall', });
 };
 </script>
