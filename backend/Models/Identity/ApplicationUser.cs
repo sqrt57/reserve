@@ -2,6 +2,6 @@
 
 namespace backend.Models;
 
-public class ApplicationUser : IdentityUser
+public class ApplicationUser : IdentityUser<int>
 {
 }

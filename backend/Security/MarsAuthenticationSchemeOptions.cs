@@ -2,6 +2,6 @@
 
 namespace backend.Security;
 
-public class MarsAuthSchemeOptions : AuthenticationSchemeOptions
+public class MarsAuthenticationSchemeOptions : AuthenticationSchemeOptions
 {
 }

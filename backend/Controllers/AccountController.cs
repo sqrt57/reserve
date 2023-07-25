@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using backend.Dto;
+using backend.Models;
 using backend.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -12,25 +13,44 @@ namespace backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]/[action]")]
+[AllowAnonymous]
 public class AccountController : ControllerBase
 {
     private readonly ILogger<AccountController> _logger;
     private readonly ISessions _sessions;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly UserManager<ApplicationUser> _userManager;
 
 
     public AccountController(
         ILogger<AccountController> logger,
-        ISessions sessions)
+        ISessions sessions,
+        SignInManager<ApplicationUser> signInManager,
+        UserManager<ApplicationUser> userManager)
     {
         _logger = logger;
         _sessions = sessions;
+        _signInManager = signInManager;
+        _userManager = userManager;
     }
 
     [HttpPost]
-    public IActionResult Login(LoginDataDto loginDataDto)
+    public async Task<IActionResult> Login(LoginDataDto loginDataDto)
     {
         if (loginDataDto.Login == null || loginDataDto.Password == null)
-            return Unauthorized(new LoginResultDto {Error = "Empty login/password"});
+            return Unauthorized(new ErrorResultDto {Error = "Empty login/password"});
+
+        var user = await _userManager.FindByNameAsync(loginDataDto.Login);
+        if (user == null)
+            return Unauthorized(new ErrorResultDto {Error = "Incorrect login/password"});
+        
+        var properties = new AuthenticationProperties
+        {
+            IsPersistent = true,
+            AllowRefresh = true,
+        };
+        await _signInManager.SignInAsync(user, properties,
+            MarsAuthenticationDefaults.AuthenticationScheme);
 
         if (loginDataDto.Login == "admin" && loginDataDto.Password == "123")
         {
@@ -41,7 +61,7 @@ public class AccountController : ControllerBase
             };
 
             var claimsIdentity = new ClaimsIdentity(
-                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                claims, MarsAuthenticationDefaults.AuthenticationScheme);
 
             var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
@@ -51,17 +71,23 @@ public class AccountController : ControllerBase
         }
         else
         {
-            return Unauthorized(new LoginResultDto {Error = "Incorrect login/password"});
+            return Unauthorized(new ErrorResultDto {Error = "Incorrect login/password"});
         }
     }
 
     [HttpPost]
-    [Authorize]
     public IActionResult Logout()
     {
-        var sessionId = HttpContext.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult?.Properties?.Items["SessionId"];
+        var sessionId = HttpContext.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult?.Properties
+            ?.Items["SessionId"];
         if (sessionId != null)
+        {
             _sessions.Remove(sessionId);
-        return Ok();
+            return Ok();
+        }
+        else
+        {
+            return BadRequest(new ErrorResultDto() {Error = "No session id provided"});
+        }
     }
 }

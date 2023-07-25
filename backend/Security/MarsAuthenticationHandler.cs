@@ -8,12 +8,12 @@ using Microsoft.Net.Http.Headers;
 
 namespace backend.Security;
 
-public class MarsAuthHandler : AuthenticationHandler<MarsAuthSchemeOptions>
+public class MarsAuthenticationHandler : AuthenticationHandler<MarsAuthenticationSchemeOptions>
 {
     private readonly ISessions _sessions;
 
-    public MarsAuthHandler(
-        IOptionsMonitor<MarsAuthSchemeOptions> options,
+    public MarsAuthenticationHandler(
+        IOptionsMonitor<MarsAuthenticationSchemeOptions> options,
         ILoggerFactory logger, 
         UrlEncoder encoder,
         ISystemClock clock,

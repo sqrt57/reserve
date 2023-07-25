@@ -1,18 +1,23 @@
+using backend.Models;
 using backend.Security;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using backend.Services;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddAuthentication(options =>
     {
-        options.DefaultScheme = AuthSchemeConstants.MarsAuthScheme;
+        options.DefaultScheme = MarsAuthenticationDefaults.AuthenticationScheme;
     })
-    .AddScheme<MarsAuthSchemeOptions, MarsAuthHandler>(
-        AuthSchemeConstants.MarsAuthScheme, options => { });
+    .AddScheme<MarsAuthenticationSchemeOptions, MarsAuthenticationHandler>(
+        MarsAuthenticationDefaults.AuthenticationScheme, options => { });
 builder.Services.AddAuthorization();
 builder.Services.AddMemoryCache();
-builder.Services.Add(ServiceDescriptor.Singleton<ISessions, MemorySessions>());
+builder.Services.AddSingleton<ISessions, MemorySessions>();
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
+    .AddUserStore<MarsUserStore>()
+    .AddRoleStore<MarsRoleStore>();
 
 var app = builder.Build();
 
