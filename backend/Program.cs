@@ -1,9 +1,17 @@
+using backend.Config;
+using backend.DbStores;
 using backend.Models;
 using backend.Security;
 using backend.Services;
 using Microsoft.AspNetCore.Identity;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddMarsConfiguration();
+builder.Services.AddDbConnection();
+builder.Services.AddMarsIdentity();
 
 builder.Services.AddControllers();
 builder.Services.AddAuthentication(options =>
@@ -15,9 +23,6 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<ISessions, MemorySessions>();
-builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
-    .AddUserStore<MarsUserStore>()
-    .AddRoleStore<MarsRoleStore>();
 
 var app = builder.Build();
 
