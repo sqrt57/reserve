@@ -2,6 +2,7 @@
 using backend.Models;
 using backend.Security;
 using backend.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace backend.Config;
 
@@ -30,7 +31,6 @@ public static class ServicesExtensions
                 setup.Password.RequireUppercase = false;
                 setup.Password.RequireNonAlphanumeric = false;
             })
-            .AddRoles<ApplicationRole>()
             .AddUserStore<MarsUserStore>()
             .AddRoleStore<MarsRoleStore>();
     }

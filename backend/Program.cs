@@ -1,11 +1,6 @@
-using backend.Config;
-using backend.DbStores;
-using backend.Models;
-using backend.Security;
-using backend.Services;
 using Microsoft.AspNetCore.Identity;
-
-
+using backend.Config;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,16 +9,32 @@ builder.Services.AddDbConnection();
 builder.Services.AddMarsIdentity();
 
 builder.Services.AddControllers();
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultScheme = MarsAuthenticationDefaults.AuthenticationScheme;
-    })
-    .AddScheme<MarsAuthenticationSchemeOptions, MarsAuthenticationHandler>(
-        MarsAuthenticationDefaults.AuthenticationScheme, options => { });
-builder.Services.AddAuthorization();
-builder.Services.AddMemoryCache();
-builder.Services.AddSingleton<ISessions, MemorySessions>();
+builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme);
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+    options.SlidingExpiration = true;
 
+    options.Cookie = new CookieBuilder
+    {
+        Name = "MarsAuthCookie",
+        HttpOnly = true,
+        SameSite = SameSiteMode.Strict,
+        SecurePolicy = CookieSecurePolicy.Always,
+    };
+
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        return Task.CompletedTask;
+    };
+});
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

@@ -17,19 +17,15 @@ namespace backend.Controllers;
 public class AccountController : ControllerBase
 {
     private readonly ILogger<AccountController> _logger;
-    private readonly ISessions _sessions;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
 
-
     public AccountController(
         ILogger<AccountController> logger,
-        ISessions sessions,
         SignInManager<ApplicationUser> signInManager,
         UserManager<ApplicationUser> userManager)
     {
         _logger = logger;
-        _sessions = sessions;
         _signInManager = signInManager;
         _userManager = userManager;
     }
@@ -43,51 +39,23 @@ public class AccountController : ControllerBase
         var user = await _userManager.FindByNameAsync(loginDataDto.Login);
         if (user == null)
             return Unauthorized(new ErrorResultDto {Error = "Incorrect login/password"});
+
+        var signInResult = await _signInManager.PasswordSignInAsync(
+            user, loginDataDto.Password, true, true);
         
-        var properties = new AuthenticationProperties
-        {
-            IsPersistent = true,
-            AllowRefresh = true,
-        };
-        await _signInManager.SignInAsync(user, properties,
-            MarsAuthenticationDefaults.AuthenticationScheme);
-
-        if (loginDataDto.Login == "admin" && loginDataDto.Password == "123")
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, loginDataDto.Login),
-                new Claim(ClaimTypes.Role, "Administrator"),
-            };
-
-            var claimsIdentity = new ClaimsIdentity(
-                claims, MarsAuthenticationDefaults.AuthenticationScheme);
-
-            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-            var sessionId = _sessions.Create(claimsPrincipal);
-
-            return Ok(new LoginResultDto {SessionId = sessionId,});
-        }
-        else
-        {
-            return Unauthorized(new ErrorResultDto {Error = "Incorrect login/password"});
-        }
+        if (signInResult.Succeeded)
+            return Ok();
+        if (signInResult.IsLockedOut)
+            return Unauthorized(new ErrorResultDto {Error = "User locked out"});
+        if (signInResult.IsNotAllowed)
+            return Unauthorized(new ErrorResultDto {Error = "Login not allowed"});
+        return Unauthorized(new ErrorResultDto {Error = "Authentication error"});
     }
 
     [HttpPost]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
-        var sessionId = HttpContext.Features.Get<IAuthenticateResultFeature>()?.AuthenticateResult?.Properties
-            ?.Items["SessionId"];
-        if (sessionId != null)
-        {
-            _sessions.Remove(sessionId);
-            return Ok();
-        }
-        else
-        {
-            return BadRequest(new ErrorResultDto() {Error = "No session id provided"});
-        }
+        await _signInManager.SignOutAsync();
+        return Ok();
     }
 }

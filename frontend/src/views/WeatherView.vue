@@ -18,11 +18,13 @@ function getHeaders() {
     return { headers: { Authorization: "Bearer " + token, } };
 }
 
-onMounted(() => {
-    const request = axios.get(getApiUrl() + 'WeatherForecast', getHeaders())
-        .then(response => {
-            weatherData.value = response.data;
-        });
+onMounted(async () => {
+    const response = await axios.get(getApiUrl() + 'WeatherForecast')
+    if (response.status === 200) {
+        weatherData.value = response.data;
+    } else {
+        console.log(response);
+    }
 });
 
 const onLogout = async () => {
@@ -39,6 +41,6 @@ const onLogout = async () => {
             <el-table-column prop="temperatureC" label="C" width="100" />
             <el-table-column prop="summary" label="Summary" />
         </el-table>
-        <a href="javascript:void;" @click="onLogout()">Logout</a>
+        <a href="javascript:void" @click="onLogout()">Logout</a>
     </main>
 </template>
