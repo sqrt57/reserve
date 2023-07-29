@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "backend", "backend\backend.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "users", "users\users.csproj", "{C69F76CA-FECB-40AD-9789-AB8BF7F7820F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbUpdate", "DbUpdate\DbUpdate.csproj", "{05BE2752-ECBD-454F-B7FB-731F2871A960}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{C69F76CA-FECB-40AD-9789-AB8BF7F7820F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C69F76CA-FECB-40AD-9789-AB8BF7F7820F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C69F76CA-FECB-40AD-9789-AB8BF7F7820F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05BE2752-ECBD-454F-B7FB-731F2871A960}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05BE2752-ECBD-454F-B7FB-731F2871A960}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05BE2752-ECBD-454F-B7FB-731F2871A960}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05BE2752-ECBD-454F-B7FB-731F2871A960}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
