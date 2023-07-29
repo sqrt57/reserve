@@ -34,22 +34,23 @@ public class AccountController : ControllerBase
     public async Task<IActionResult> Login(LoginDataDto loginDataDto)
     {
         if (loginDataDto.Login == null || loginDataDto.Password == null)
-            return Unauthorized(new ErrorResultDto {Error = "Empty login/password"});
+            return BadRequest(new ErrorResultDto {Error = "Empty login/password"});
 
         var user = await _userManager.FindByNameAsync(loginDataDto.Login);
         if (user == null)
-            return Unauthorized(new ErrorResultDto {Error = "Incorrect login/password"});
+            return BadRequest(new ErrorResultDto {Error = "Incorrect login/password"});
 
         var signInResult = await _signInManager.PasswordSignInAsync(
             user, loginDataDto.Password, true, true);
         
         if (signInResult.Succeeded)
             return Ok();
+        
         if (signInResult.IsLockedOut)
-            return Unauthorized(new ErrorResultDto {Error = "User locked out"});
+            return BadRequest(new ErrorResultDto {Error = "User locked out"});
         if (signInResult.IsNotAllowed)
-            return Unauthorized(new ErrorResultDto {Error = "Login not allowed"});
-        return Unauthorized(new ErrorResultDto {Error = "Authentication error"});
+            return BadRequest(new ErrorResultDto {Error = "Login not allowed"});
+        return BadRequest(new ErrorResultDto {Error = "Incorrect login/password"});
     }
 
     [HttpPost]

@@ -1,34 +1,23 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import axios from 'axios';
-import { getApiUrl } from '@/services/path';
-import router from '@/router';
+import axios, { AxiosError } from 'axios';
+import http from '../services/http';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const weatherData = ref();
 
-function bytesToBase64(bytes: any) {
-    const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join("");
-    return btoa(binString);
-}
-
-function getHeaders() {
-    const sessionId = window.localStorage["sessionId"];
-    const tokenUtf8 = JSON.stringify({ sessionId: sessionId });
-    const token = bytesToBase64(new TextEncoder().encode(tokenUtf8));
-    return { headers: { Authorization: "Bearer " + token, } };
-}
-
 onMounted(async () => {
-    const response = await axios.get(getApiUrl() + 'WeatherForecast')
-    if (response.status === 200) {
+    try {
+        const response = await http.get('WeatherForecast');
         weatherData.value = response.data;
-    } else {
-        console.log(response);
+    } catch (error) {
+        console.log(error);
     }
 });
 
 const onLogout = async () => {
-    const result = await axios.post(getApiUrl() + 'account/logout', null, getHeaders());
+    const result = await http.post('account/logout');
     router.push({ name: 'login', });
 };
 
@@ -41,6 +30,6 @@ const onLogout = async () => {
             <el-table-column prop="temperatureC" label="C" width="100" />
             <el-table-column prop="summary" label="Summary" />
         </el-table>
-        <a href="javascript:void" @click="onLogout()">Logout</a>
+        <a href="javascript:" @click="onLogout()">Logout</a>
     </main>
 </template>

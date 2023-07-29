@@ -2,9 +2,8 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import type { FormInstance, FormRules } from 'element-plus';
-import axios from 'axios';
-
-import { getApiUrl } from '@/services/path';
+import { AxiosError } from 'axios';
+import { rawHttp as http } from '../services/http';
 
 const router = useRouter();
 
@@ -32,11 +31,15 @@ const rules = reactive<FormRules<LoginForm>>({
 const onLogin = async (formElement: FormInstance | undefined) => {
     if (!formElement) return;
     if (!await formElement.validate()) return;
-    const result = await axios.post(getApiUrl() + 'account/login', loginForm);
-    if (result.status === 200) {
+    try {
+        const result = await http.post('account/login', loginForm);
         router.push({ name: 'hall', });
-    } else {
-        console.log(result);
+    }
+    catch (error) {
+        if (error instanceof AxiosError && error.response?.status === 400) {
+            alert(error.response?.data.error);
+        }
+        console.log(error);
     }
 };
 </script>
@@ -47,7 +50,7 @@ const onLogin = async (formElement: FormInstance | undefined) => {
             <h1>Login to Reservations</h1>
         </el-header>
         <el-main>
-            <el-form :model="loginForm" ref="loginFormRef" label-width="100px" :rules="rules">
+            <el-form :model="loginForm" ref="loginFormRef" @keyup.enter.native="onLogin(loginFormRef)" label-width="100px" :rules="rules">
                 <el-form-item label="Login" prop="login">
                     <el-input v-model="loginForm.login" />
                 </el-form-item>

@@ -85,10 +85,57 @@ INSERT INTO [dbo].[MarsUsers]
             });
     }
 
-    public override Task<IdentityResult> UpdateAsync(ApplicationUser user,
+    public override async Task<IdentityResult> UpdateAsync(ApplicationUser user,
         CancellationToken cancellationToken = new CancellationToken())
     {
-        throw new NotImplementedException();
+        const string query = @"
+UPDATE [dbo].[MarsUsers] SET
+	[UserName] = @UserName
+    ,[NormalizedUserName] = @NormalizedUserName
+    ,[Email] = @Email
+    ,[NormalizedEmail] = @NormalizedEmail
+    ,[EmailConfirmed] = @EmailConfirmed
+    ,[PasswordHash] = @PasswordHash
+    ,[SecurityStamp] = @SecurityStamp
+    ,[ConcurrencyStamp] = @ConcurrencyStamp
+    ,[PhoneNumber] = @PhoneNumber
+    ,[PhoneNumberConfirmed] = @PhoneNumberConfirmed
+    ,[TwoFactorEnabled] = @TwoFactorEnabled
+    ,[LockoutEnd] = @LockoutEnd
+    ,[LockoutEnabled] = @LockoutEnabled
+    ,[AccessFailedCount] = @AccessFailedCount
+WHERE [Id] = @Id
+";
+        
+        var parameters = new DynamicParameters();
+        parameters.Add("Id", user.Id);
+        parameters.Add("UserName", user.UserName);
+        parameters.Add("NormalizedUserName", user.NormalizedUserName);
+        parameters.Add("Email", user.Email);
+        parameters.Add("NormalizedEmail", user.NormalizedEmail);
+        parameters.Add("EmailConfirmed", user.EmailConfirmed);
+        parameters.Add("PasswordHash", user.PasswordHash);
+        parameters.Add("SecurityStamp", user.SecurityStamp);
+        parameters.Add("ConcurrencyStamp", user.ConcurrencyStamp);
+        parameters.Add("PhoneNumber", user.PhoneNumber);
+        parameters.Add("PhoneNumberConfirmed", user.PhoneNumberConfirmed);
+        parameters.Add("TwoFactorEnabled", user.TwoFactorEnabled);
+        parameters.Add("LockoutEnd", user.LockoutEnd);
+        parameters.Add("LockoutEnabled", user.LockoutEnabled);
+        parameters.Add("AccessFailedCount", user.AccessFailedCount);
+        
+        using var connection = _dapperConnections.Create();
+        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+        return rowsAffected > 0
+            ? IdentityResult.Success
+            : IdentityResult.Failed(new[]
+            {
+                new IdentityError
+                {
+                    Code = "DbUpdateError",
+                    Description = "Error updating user in [dbo].[MarsUsers] table",
+                }
+            });
     }
 
     public override Task<IdentityResult> DeleteAsync(ApplicationUser user,
