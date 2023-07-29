@@ -24,35 +24,37 @@ public class MarsUserStore : UserStoreBase<ApplicationUser, int, ApplicationUser
     {
         const string query = @"
 INSERT INTO [dbo].[MarsUsers]
-           ([UserName]
-           ,[NormalizedUserName]
-           ,[Email]
-           ,[NormalizedEmail]
-           ,[EmailConfirmed]
-           ,[PasswordHash]
-           ,[SecurityStamp]
-           ,[ConcurrencyStamp]
-           ,[PhoneNumber]
-           ,[PhoneNumberConfirmed]
-           ,[TwoFactorEnabled]
-           ,[LockoutEnd]
-           ,[LockoutEnabled]
-           ,[AccessFailedCount])
-     VALUES
-           (@UserName
-           ,@NormalizedUserName
-           ,@Email
-           ,@NormalizedEmail
-           ,@EmailConfirmed
-           ,@PasswordHash
-           ,@SecurityStamp
-           ,@ConcurrencyStamp
-           ,@PhoneNumber
-           ,@PhoneNumberConfirmed
-           ,@TwoFactorEnabled
-           ,@LockoutEnd
-           ,@LockoutEnabled
-           ,@AccessFailedCount)
+        ([UserName]
+        ,[IsActive]
+        ,[NormalizedUserName]
+        ,[Email]
+        ,[NormalizedEmail]
+        ,[EmailConfirmed]
+        ,[PasswordHash]
+        ,[SecurityStamp]
+        ,[ConcurrencyStamp]
+        ,[PhoneNumber]
+        ,[PhoneNumberConfirmed]
+        ,[TwoFactorEnabled]
+        ,[LockoutEnd]
+        ,[LockoutEnabled]
+        ,[AccessFailedCount])
+    VALUES
+        (@UserName
+        ,1
+        ,@NormalizedUserName
+        ,@Email
+        ,@NormalizedEmail
+        ,@EmailConfirmed
+        ,@PasswordHash
+        ,@SecurityStamp
+        ,@ConcurrencyStamp
+        ,@PhoneNumber
+        ,@PhoneNumberConfirmed
+        ,@TwoFactorEnabled
+        ,@LockoutEnd
+        ,@LockoutEnabled
+        ,@AccessFailedCount)
 ";
 
         var parameters = new DynamicParameters();
@@ -91,6 +93,7 @@ INSERT INTO [dbo].[MarsUsers]
         const string query = @"
 UPDATE [dbo].[MarsUsers] SET
 	[UserName] = @UserName
+    ,[IsActive] = 1
     ,[NormalizedUserName] = @NormalizedUserName
     ,[Email] = @Email
     ,[NormalizedEmail] = @NormalizedEmail
@@ -153,8 +156,12 @@ WHERE [Id] = @Id
     public override async Task<ApplicationUser?> FindByNameAsync(string normalizedUserName,
         CancellationToken cancellationToken = new CancellationToken())
     {
+        const string query = @"
+SELECT * FROM [MarsUsers]
+WHERE [NormalizedUserName] = @NormalizedUserName
+AND IsActive = 1
+";
         using var connection = _dapperConnections.Create();
-        const string query = "SELECT * FROM [MarsUsers] WHERE [NormalizedUserName] = @NormalizedUserName";
         return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(query, new {normalizedUserName});
     }
 
