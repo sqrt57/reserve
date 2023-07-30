@@ -2,5 +2,5 @@
 </script>
 
 <template>
-    <p>Goods and Services</p>
+    <p>Visitors today</p>
 </template>

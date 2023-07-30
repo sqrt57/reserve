@@ -19,6 +19,8 @@
     <ItemGroup>
       <None Remove="Scripts\Script0001 - Identity tables.sql" />
       <EmbeddedResource Include="Scripts\Script0001 - Identity tables.sql" />
+      <None Remove="Scripts\Script0002 - visitors table.sql" />
+      <EmbeddedResource Include="Scripts\Script0002 - visitors table.sql" />
     </ItemGroup>
 
 </Project>

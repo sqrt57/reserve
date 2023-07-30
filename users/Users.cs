@@ -1,8 +1,11 @@
-﻿using backend.Config;
+﻿using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using backend.Config;
 using backend.Models;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace users;
 
@@ -10,12 +13,17 @@ public class Users
 {
     private readonly IApplicationBuilder _app;
 
-    public Users(string[] args)
+    public Users()
     {
-        var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateBuilder();
+
+        builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+        builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
+        {
+            containerBuilder.RegisterModule<BusinessLayerModule>();
+        });
 
         builder.Configuration.AddMarsConfiguration();
-        builder.Services.AddDbConnection();
         builder.Services.AddMarsIdentity();
 
         _app = builder.Build();

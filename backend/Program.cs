@@ -1,11 +1,18 @@
 using Microsoft.AspNetCore.Identity;
-using backend.Config;
 using Microsoft.AspNetCore.Authorization;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using backend.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
+{
+    containerBuilder.RegisterModule<BusinessLayerModule>();
+});
+
 builder.Configuration.AddMarsConfiguration();
-builder.Services.AddDbConnection();
 builder.Services.AddMarsIdentity();
 
 builder.Services.AddControllers();
@@ -47,3 +54,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
+

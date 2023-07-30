@@ -30,7 +30,7 @@ rootCommand.AddCommand(addCommand);
 
 addCommand.SetHandler(async (login, password, isAdmin) =>
 {
-    await new Users(new string[]{}).Add(login, password, isAdmin);
+    await new Users().Add(login, password, isAdmin);
 }, loginOption, passwordOption, adminOption);
 
 return await rootCommand.InvokeAsync(args);

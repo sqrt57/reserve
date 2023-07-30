@@ -3,7 +3,7 @@ import LoginView from '../views/LoginView.vue';
 import HallView from '../views/HallView.vue';
 import VisitorsView from '../views/VisitorsView.vue';
 import WeatherView from '../views/WeatherView.vue';
-import GoodsAndServicesView from '../views/GoodsAndServicesView.vue';
+import VisitorsHistoryView from '../views/VisitorsHistoryView.vue';
 import AdminView from '../views/AdminView.vue';
 
 const router = createRouter({
@@ -21,23 +21,18 @@ const router = createRouter({
         {
             path: '/hall',
             name: 'hall',
-            redirect: { name: 'weather' },
+            redirect: { name: 'visitors' },
             component: HallView,
             children: [
-                {
-                    path: 'weather',
-                    name: 'weather',
-                    component: WeatherView,
-                },
                 {
                     path: 'visitors',
                     name: 'visitors',
                     component: VisitorsView,
                 },
                 {
-                    path: 'goods-and-services',
-                    name: 'goods-and-services',
-                    component: GoodsAndServicesView,
+                    path: 'visitors-history',
+                    name: 'visitors-history',
+                    component: VisitorsHistoryView,
                 },
             ],
         },

@@ -1,6 +1,42 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import http from '../services/http';
+
+const queryInterval = 10000;
+
+const visitorsData = ref();
+
+async function queryData() {
+    try {
+        const response = await http.get('visitors');
+        visitorsData.value = response.data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function serialQueryData() {
+    await queryData();
+    setTimeout(serialQueryData, queryInterval);
+}
+
+onMounted(async () => {
+    serialQueryData()
+});
+
 </script>
 
 <template>
-    <p>Visitors</p>
+    <el-table :data="visitorsData" style="width: 100%">
+        <el-table-column prop="badgeNumber" label="Badge" />
+        <el-table-column prop="name" label="Name" />
+        <el-table-column prop="openDateTime" label="Opened" />
+        <el-table-column prop="closeDateTime" label="Closed" />
+        <el-table-column prop="openBill" label="Open Bill" />
+        <el-table-column prop="billed" label="Bill" />
+        <el-table-column prop="payed" label="Payed" />
+    </el-table>
 </template>
+
+<style>
+</style>

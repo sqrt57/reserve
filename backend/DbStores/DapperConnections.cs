@@ -2,7 +2,7 @@
 using backend.Exceptions;
 using Microsoft.Data.SqlClient;
 
-namespace backend.Services;
+namespace backend.DbStores;
 
 public class DapperConnections
 {
