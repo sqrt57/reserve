@@ -1,4 +1,5 @@
-﻿using backend.Models;
+﻿using System.Data;
+using backend.Models;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
 
@@ -13,16 +14,21 @@ public class VisitorsStore
         _dapperConnections = dapperConnections;
     }
 
-    public Task<IEnumerable<Visitor>> GetOpenVisitors()
+    public async Task<IReadOnlyCollection<Visitor>> GetOpenVisitors(DateTime? minCloseTime)
     {
-        var query = @"
+        var minCloseTimeFilter = minCloseTime.HasValue ? "OR [CloseDateTime] > @CloseDateTime" : "";
+        var query = @$"
 SELECT * FROM [dbo].[Visitors]
-WHERE [IsActive] = 1 AND ([CloseDateTime] IS NULL OR [Payed] IS NULL)
+WHERE [IsActive] = 1 AND ([CloseDateTime] IS NULL OR [Payed] IS NULL {minCloseTimeFilter})
 ORDER BY [Id]
 ";
 
-        using var connection = _dapperConnections.Create();
-        return connection.QueryAsync<Visitor>(query);
+        var parameters = new DynamicParameters();
+        if (minCloseTime.HasValue)
+            parameters.Add("CloseDateTime", minCloseTime.Value);
+
+        using var connection = await _dapperConnections.CreateAsync();
+        return (await connection.QueryAsync<Visitor>(query, parameters)).ToList();
     }
 
     public async Task<Visitor> CreateVisitor(Visitor visitor)
@@ -65,7 +71,7 @@ SELECT CAST(SCOPE_IDENTITY() as int);
         parameters.Add("Billed", visitor.Billed);
         parameters.Add("Payed", visitor.Payed);
 
-        using var connection = _dapperConnections.Create();
+        using var connection = await _dapperConnections.CreateAsync();
         var id = await connection.ExecuteScalarAsync<int>(query);
         visitor.Id = id;
         return visitor;
@@ -100,7 +106,7 @@ WHERE [Id] = @Id
         parameters.Add("Billed", visitor.Billed);
         parameters.Add("Payed", visitor.Payed);
 
-        using var connection = _dapperConnections.Create();
+        using var connection = await _dapperConnections.CreateAsync();
         var id = await connection.ExecuteScalarAsync<int>(query);
         visitor.Id = id;
         return visitor;

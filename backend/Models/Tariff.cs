@@ -3,7 +3,6 @@
 public class Tariff
 {
     public int Id { get; set; }
-    public bool IsActual { get; set; }
     public DateTime CreatedDateTime { get; set; }
     public int CreatedByUserId { get; set; }
     public decimal PricePerHourFirstHour { get; set; }

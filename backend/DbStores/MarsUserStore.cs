@@ -72,7 +72,7 @@ INSERT INTO [dbo].[MarsUsers]
         parameters.Add("LockoutEnabled", user.LockoutEnabled);
         parameters.Add("AccessFailedCount", user.AccessFailedCount);
 
-        using var connection = _dapperConnections.Create();
+        using var connection = await _dapperConnections.CreateAsync();
         var rowsAffected = await connection.ExecuteAsync(query, parameters);
         return rowsAffected > 0
             ? IdentityResult.Success
@@ -108,7 +108,7 @@ UPDATE [dbo].[MarsUsers] SET
     ,[AccessFailedCount] = @AccessFailedCount
 WHERE [Id] = @Id
 ";
-        
+
         var parameters = new DynamicParameters();
         parameters.Add("Id", user.Id);
         parameters.Add("UserName", user.UserName);
@@ -125,8 +125,8 @@ WHERE [Id] = @Id
         parameters.Add("LockoutEnd", user.LockoutEnd);
         parameters.Add("LockoutEnabled", user.LockoutEnabled);
         parameters.Add("AccessFailedCount", user.AccessFailedCount);
-        
-        using var connection = _dapperConnections.Create();
+
+        using var connection = await _dapperConnections.CreateAsync();
         var rowsAffected = await connection.ExecuteAsync(query, parameters);
         return rowsAffected > 0
             ? IdentityResult.Success
@@ -160,7 +160,7 @@ SELECT * FROM [MarsUsers]
 WHERE [NormalizedUserName] = @NormalizedUserName
 AND IsActive = 1
 ";
-        using var connection = _dapperConnections.Create();
+        using var connection = await _dapperConnections.CreateAsync();
         return await connection.QuerySingleOrDefaultAsync<ApplicationUser>(query, new {normalizedUserName});
     }
 

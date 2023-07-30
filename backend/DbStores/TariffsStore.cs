@@ -1,4 +1,5 @@
-﻿using backend.Models;
+﻿using System.Data;
+using backend.Models;
 using Dapper;
 using Microsoft.AspNetCore.Identity;
 
@@ -13,15 +14,15 @@ public class TariffsStore
         _dapperConnections = dapperConnections;
     }
 
-    public Task<Tariff> GetActualTariff()
+    public async Task<Tariff> GetTariff()
     {
         var query = @"
 SELECT TOP 1 * FROM [dbo].[Tariffs]
-WHERE [IsActual] = 1
+WHERE [IsActive] = 1
 ORDER BY [CreatedDateTime] DESC
 ";
 
-        using var connection = _dapperConnections.Create();
-        return connection.QuerySingleOrDefaultAsync<Tariff>(query);
+        using var connection = await _dapperConnections.CreateAsync();
+        return await connection.QuerySingleOrDefaultAsync<Tariff>(query);
     }
 }

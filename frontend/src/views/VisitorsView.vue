@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import http from '../services/http';
+import { getVisitors } from '../dataServices/visitors';
 
 const queryInterval = 10000;
 
@@ -8,8 +9,8 @@ const visitorsData = ref();
 
 async function queryData() {
     try {
-        const response = await http.get('visitors');
-        visitorsData.value = response.data;
+        const visitors = await getVisitors();
+        visitorsData.value = visitors;
     } catch (error) {
         console.log(error);
     }

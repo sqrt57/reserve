@@ -4,7 +4,7 @@ IF OBJECT_ID(N'dbo.Tariffs', N'U') IS NULL
 BEGIN
 	CREATE TABLE [dbo].[Tariffs] (
 		[Id] [int] IDENTITY(1,1) NOT NULL,
-		[IsActual] [bit] NOT NULL,
+		[IsActive] [bit] NOT NULL,
 		[CreatedDateTime] [datetime2] NOT NULL,
 		[CreatedByUserId] [int] NOT NULL,
 		[PricePerHourFirstHour] [decimal](18,2) NOT NULL,

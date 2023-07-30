@@ -15,6 +15,10 @@ public class DapperConnections
                                 "Missing DefaultConnection connection string configuration");
     }
 
-    public IDbConnection Create()
-        => new SqlConnection(_connectionString);
+    public async Task<IDbConnection> CreateAsync()
+    {
+        var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync();
+        return connection;
+    }
 }

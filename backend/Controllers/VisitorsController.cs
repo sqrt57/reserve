@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using backend.BusinessLogic;
 using backend.Dto;
-using backend.Models;
 
 namespace backend.Controllers;
 
@@ -20,11 +19,6 @@ public class VisitorsController
     public async Task<IReadOnlyCollection<ShortVisitorDto>> Get()
     {
         var visitors = await _visitorsService.GetOpenVisitors();
-        return visitors.Select(visitor =>
-        {
-            var visitorDto = ShortVisitorDto.FromModel(visitor.visitor);
-            visitorDto.OpenBill = visitor.openBill;
-            return visitorDto;
-        }).ToList();
+        return visitors.Select(ShortVisitorDto.FromModel).ToList();
     }
 }

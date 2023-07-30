@@ -11,19 +11,26 @@ public class ShortVisitorDto
     public DateTime? CloseDateTime { get; set; }
     public decimal? Billed { get; set; }
     public decimal? Payed { get; set; }
+    public string? Status { get; set; }
+    public TimeSpan? OpenDuration { get; set; }
     public decimal? OpenBill { get; set; }
+    public TimeSpan? ClosedDuration { get; set; }
 
-    public static ShortVisitorDto FromModel(Visitor visitor)
+    public static ShortVisitorDto FromModel(OpenVisitor visitor)
     {
         return new ShortVisitorDto
         {
-            Id = visitor.Id,
-            BadgeNumber = visitor.BadgeNumber,
-            Name = visitor.Name,
-            OpenDateTime = visitor.OpenDateTime,
-            CloseDateTime = visitor.CloseDateTime,
-            Billed = visitor.Billed,
-            Payed = visitor.Payed,
+            Id = visitor.Visitor.Id,
+            BadgeNumber = visitor.Visitor.BadgeNumber,
+            Name = visitor.Visitor.Name,
+            OpenDateTime = visitor.Visitor.OpenDateTime,
+            CloseDateTime = visitor.Visitor.CloseDateTime,
+            Billed = visitor.Visitor.Billed,
+            Payed = visitor.Visitor.Payed,
+            Status = visitor.Status.ToString(),
+            OpenDuration = visitor.OpenDuration,
+            OpenBill = visitor.OpenBill,
+            ClosedDuration = visitor.ClosedDuration,
         };
     }
 }
