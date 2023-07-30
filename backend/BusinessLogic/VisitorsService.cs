@@ -1,5 +1,6 @@
 ﻿using backend.DbStores;
 using backend.Models;
+using backend.Services;
 
 namespace backend.BusinessLogic;
 
@@ -7,11 +8,16 @@ public class VisitorsService
 {
     private readonly VisitorsStore _visitorsStore;
     private readonly TariffsStore _tariffsStore;
+    private readonly UserIdAccessor _userIdAccessor;
 
-    public VisitorsService(VisitorsStore visitorsStore, TariffsStore tariffsStore)
+    public VisitorsService(
+        VisitorsStore visitorsStore,
+        TariffsStore tariffsStore,
+        UserIdAccessor userIdAccessor)
     {
         _visitorsStore = visitorsStore;
         _tariffsStore = tariffsStore;
+        _userIdAccessor = userIdAccessor;
     }
 
     public async Task<IReadOnlyCollection<OpenVisitor>> GetOpenVisitors()
@@ -23,7 +29,16 @@ public class VisitorsService
         return result;
     }
 
-    private OpenVisitor EnrichVisitor(Visitor visitor, Tariff tariff, DateTime now)
+    public async Task<OpenVisitor> NewVisitor(Visitor visitor)
+    {
+        var now = DateTime.Now;
+        visitor.OpenDateTime = now;
+        visitor.OpenedByUserId = _userIdAccessor.GetUserId();
+        var resultVisitor = await _visitorsStore.CreateVisitor(visitor);
+        return EnrichVisitor(resultVisitor, null, now);
+    }
+
+    private OpenVisitor EnrichVisitor(Visitor visitor, Tariff? tariff, DateTime now)
     {
         var status = visitor.CloseDateTime == null
             ? VisitorStatus.Open
@@ -48,8 +63,11 @@ public class VisitorsService
         return result;
     }
 
-    private decimal CalculateBill(Tariff tariff, TimeSpan openDuration)
+    private decimal? CalculateBill(Tariff? tariff, TimeSpan openDuration)
     {
+        if (tariff == null)
+            return null;
+
         var firstHour =  tariff.PricePerHourFirstHour;
         var secondHour = tariff.PricePerHourSecondHour ?? firstHour;
         var thirdHour = tariff.PricePerHourThirdHour ?? secondHour;

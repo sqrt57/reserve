@@ -3,6 +3,7 @@ using backend.BusinessLogic;
 using backend.DbStores;
 using backend.Models;
 using backend.Security;
+using backend.Services;
 using Microsoft.AspNetCore.Identity;
 
 namespace backend.Config;
@@ -11,6 +12,8 @@ public class BusinessLayerModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {
+        builder.RegisterType<UserIdAccessor>().AsSelf();
+
         builder.RegisterType<DapperConnections>().AsSelf().InstancePerLifetimeScope();
 
         builder.RegisterType<MarsUserStore>().As<IUserStore<ApplicationUser>>().InstancePerLifetimeScope();

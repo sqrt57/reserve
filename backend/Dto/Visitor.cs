@@ -34,3 +34,16 @@ public class ShortVisitorDto
         };
     }
 }
+
+public class NewVisitorDto
+{
+    public string? BadgeNumber { get; set; }
+    public string? Name { get; set; }
+
+    public Visitor ToModel() =>
+        new Visitor()
+        {
+            BadgeNumber = BadgeNumber,
+            Name = Name,
+        };
+}

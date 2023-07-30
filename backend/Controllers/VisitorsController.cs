@@ -21,4 +21,12 @@ public class VisitorsController
         var visitors = await _visitorsService.GetOpenVisitors();
         return visitors.Select(ShortVisitorDto.FromModel).ToList();
     }
+
+    [HttpPost()]
+    [Route("new")]
+    public async Task<ShortVisitorDto> NewVisitor(NewVisitorDto newVisitor)
+    {
+        var resultVisitor = await _visitorsService.NewVisitor(newVisitor.ToModel());
+        return ShortVisitorDto.FromModel(resultVisitor);
+    }
 }

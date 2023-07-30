@@ -14,7 +14,7 @@ public class TariffsStore
         _dapperConnections = dapperConnections;
     }
 
-    public async Task<Tariff> GetTariff()
+    public async Task<Tariff?> GetTariff()
     {
         var query = @"
 SELECT TOP 1 * FROM [dbo].[Tariffs]

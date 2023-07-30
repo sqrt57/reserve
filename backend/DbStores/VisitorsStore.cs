@@ -72,7 +72,7 @@ SELECT CAST(SCOPE_IDENTITY() as int);
         parameters.Add("Payed", visitor.Payed);
 
         using var connection = await _dapperConnections.CreateAsync();
-        var id = await connection.ExecuteScalarAsync<int>(query);
+        var id = await connection.ExecuteScalarAsync<int>(query, parameters);
         visitor.Id = id;
         return visitor;
     }
@@ -107,7 +107,7 @@ WHERE [Id] = @Id
         parameters.Add("Payed", visitor.Payed);
 
         using var connection = await _dapperConnections.CreateAsync();
-        var id = await connection.ExecuteScalarAsync<int>(query);
+        var id = await connection.ExecuteScalarAsync<int>(query, parameters);
         visitor.Id = id;
         return visitor;
     }
