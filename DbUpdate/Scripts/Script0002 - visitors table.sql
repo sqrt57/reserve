@@ -37,7 +37,7 @@ BEGIN
 		[ClosedByUserId] [int] NULL,
 		[PaymentAcceptedByUserId] [int] NULL,
 		[Billed] [decimal](18,2) NULL,
-		[Payed] [decimal](18,2) NULL,
+		[Paid] [decimal](18,2) NULL,
 		CONSTRAINT [PK_Visitors] PRIMARY KEY CLUSTERED ([Id] ASC)
 	);
 END;

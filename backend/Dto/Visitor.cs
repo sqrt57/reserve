@@ -10,7 +10,7 @@ public class ShortVisitorDto
     public DateTime OpenDateTime { get; set; }
     public DateTime? CloseDateTime { get; set; }
     public decimal? Billed { get; set; }
-    public decimal? Payed { get; set; }
+    public decimal? Paid { get; set; }
     public string? Status { get; set; }
     public TimeSpan? OpenDuration { get; set; }
     public decimal? OpenBill { get; set; }
@@ -26,7 +26,7 @@ public class ShortVisitorDto
             OpenDateTime = visitor.Visitor.OpenDateTime,
             CloseDateTime = visitor.Visitor.CloseDateTime,
             Billed = visitor.Visitor.Billed,
-            Payed = visitor.Visitor.Payed,
+            Paid = visitor.Visitor.Paid,
             Status = visitor.Status.ToString(),
             OpenDuration = visitor.OpenDuration,
             OpenBill = visitor.OpenBill,

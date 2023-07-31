@@ -42,9 +42,9 @@ public class VisitorsService
     {
         var status = visitor.CloseDateTime == null
             ? VisitorStatus.Open
-            : visitor.Payed == null
+            : visitor.Paid == null
                 ? VisitorStatus.Closed
-                : VisitorStatus.Payed;
+                : VisitorStatus.Paid;
 
         var result = new OpenVisitor(visitor) {Status = status};
 

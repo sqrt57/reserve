@@ -19,7 +19,7 @@ public class VisitorsStore
         var minCloseTimeFilter = minCloseTime.HasValue ? "OR [CloseDateTime] > @CloseDateTime" : "";
         var query = @$"
 SELECT * FROM [dbo].[Visitors]
-WHERE [IsActive] = 1 AND ([CloseDateTime] IS NULL OR [Payed] IS NULL {minCloseTimeFilter})
+WHERE [IsActive] = 1 AND ([CloseDateTime] IS NULL OR [Paid] IS NULL {minCloseTimeFilter})
 ORDER BY [Id]
 ";
 
@@ -44,7 +44,7 @@ INSERT INTO [dbo].[Visitors]
         ,[ClosedByUserId]
         ,[PaymentAcceptedByUserId]
         ,[Billed]
-        ,[Payed])
+        ,[Paid])
     VALUES
         (1
         ,@BadgeNumber
@@ -55,7 +55,7 @@ INSERT INTO [dbo].[Visitors]
         ,@ClosedByUserId
         ,@PaymentAcceptedByUserId
         ,@Billed
-        ,@Payed);
+        ,@Paid);
 
 SELECT CAST(SCOPE_IDENTITY() as int);
 ";
@@ -69,7 +69,7 @@ SELECT CAST(SCOPE_IDENTITY() as int);
         parameters.Add("ClosedByUserId", visitor.ClosedByUserId);
         parameters.Add("PaymentAcceptedByUserId", visitor.PaymentAcceptedByUserId);
         parameters.Add("Billed", visitor.Billed);
-        parameters.Add("Payed", visitor.Payed);
+        parameters.Add("Paid", visitor.Paid);
 
         using var connection = await _dapperConnections.CreateAsync();
         var id = await connection.ExecuteScalarAsync<int>(query, parameters);
@@ -90,7 +90,7 @@ UPDATE [dbo].[Visitors] SET
     ,[ClosedByUserId] = @ClosedByUserId
     ,[PaymentAcceptedByUserId] = @PaymentAcceptedByUserId
     ,[Billed] = @Billed
-    ,[Payed] = @Payed
+    ,[Paid] = @Paid
 WHERE [Id] = @Id
 ";
 
@@ -104,7 +104,7 @@ WHERE [Id] = @Id
         parameters.Add("ClosedByUserId", visitor.ClosedByUserId);
         parameters.Add("PaymentAcceptedByUserId", visitor.PaymentAcceptedByUserId);
         parameters.Add("Billed", visitor.Billed);
-        parameters.Add("Payed", visitor.Payed);
+        parameters.Add("Paid", visitor.Paid);
 
         using var connection = await _dapperConnections.CreateAsync();
         var id = await connection.ExecuteScalarAsync<int>(query, parameters);

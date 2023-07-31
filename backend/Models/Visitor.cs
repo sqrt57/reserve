@@ -11,14 +11,14 @@ public class Visitor
     public int? ClosedByUserId { get; set; }
     public int? PaymentAcceptedByUserId { get; set; }
     public decimal? Billed { get; set; }
-    public decimal? Payed { get; set; }
+    public decimal? Paid { get; set; }
 }
 
 public enum VisitorStatus
 {
     Open = 0,
     Closed = 1,
-    Payed = 2,
+    Paid = 2,
 }
 
 public class OpenVisitor
