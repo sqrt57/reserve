@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue';
 import { getVisitors, createNewVisitor } from '../dataServices/visitors';
-import { type ShortVisitorDto } from '../backendDto/visitor';
-import type { FormInstance } from 'element-plus';
+import { type NewVisitorDto, type ShortVisitorDto } from '../backendDto/visitor';
+import NewVisitorDialog from '../components/NewVisitorDialog.vue'
 
 const queryInterval = 10000;
 
-const visitorsData = ref<ShortVisitorDto>();
-const newVisitorFormVisible = ref(false);
+const visitorsData = ref<ShortVisitorDto[]>();
 
 async function queryData() {
     try {
@@ -24,34 +23,18 @@ async function serialQueryData() {
 }
 
 onMounted(async () => {
-    serialQueryData()
+    serialQueryData();
 });
 
-interface NewVistorForm {
-    badgeNumber?: string;
-    name?: string;
-}
 
-const newVistorForm = reactive<NewVistorForm>({
-    badgeNumber: undefined,
-    name: undefined,
-});
-
-const newVistorFormRef = ref<FormInstance>();
+const newVisitorDialogRef = ref<typeof NewVisitorDialog | null>(null);
 
 function newVisitor() {
-    newVistorForm.badgeNumber = undefined;
-    newVistorForm.name = undefined;
-    newVisitorFormVisible.value = true;
+    newVisitorDialogRef?.value?.showForm();
 }
 
-function newVisitorCancel() {
-    newVisitorFormVisible.value = false;
-}
-
-async function newVisitorConfirm() {
-    newVisitorFormVisible.value = false;
-    await createNewVisitor(newVistorForm);
+async function newVisitorConfirm(data: NewVisitorDto) {
+    await createNewVisitor(data);
 }
 
 </script>
@@ -70,22 +53,7 @@ async function newVisitorConfirm() {
         <el-table-column prop="payed" label="Payed" />
     </el-table>
 
-    <el-dialog v-model="newVisitorFormVisible" title="New visitor">
-        <el-form :model="newVistorForm" ref="newVistorFormRef">
-            <el-form-item label="Badge number" prop="badgeNumber">
-                <el-input v-model="newVistorForm.badgeNumber" />
-            </el-form-item>
-            <el-form-item label="Name" prop="name">
-                <el-input v-model="newVistorForm.name" />
-            </el-form-item>
-        </el-form>
-        <template #footer>
-            <span class="dialog-footer">
-                <el-button @click="newVisitorCancel()">Cancel</el-button>
-                <el-button type="primary" @click="newVisitorConfirm()">Confirm</el-button>
-            </span>
-        </template>
-    </el-dialog>
+    <NewVisitorDialog ref="newVisitorDialogRef" @commited="newVisitorConfirm" />
 </template>
 
 <style>

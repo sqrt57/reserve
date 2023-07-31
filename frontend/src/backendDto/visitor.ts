@@ -11,3 +11,8 @@ export interface ShortVisitorDto {
     openBill: number | null;
     closedDuration: string | null;
 }
+
+export interface NewVisitorDto {
+    badgeNumber: string | null;
+    name: string | null;
+}

@@ -38,7 +38,7 @@ public class VisitorsService
         return EnrichVisitor(resultVisitor, null, now);
     }
 
-    private OpenVisitor EnrichVisitor(Visitor visitor, Tariff? tariff, DateTime now)
+    private static OpenVisitor EnrichVisitor(Visitor visitor, Tariff? tariff, DateTime now)
     {
         var status = visitor.CloseDateTime == null
             ? VisitorStatus.Open
@@ -63,7 +63,7 @@ public class VisitorsService
         return result;
     }
 
-    private decimal? CalculateBill(Tariff? tariff, TimeSpan openDuration)
+    private static decimal? CalculateBill(Tariff? tariff, TimeSpan openDuration)
     {
         if (tariff == null)
             return null;
