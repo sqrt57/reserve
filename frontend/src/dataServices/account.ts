@@ -1,5 +1,5 @@
 import router from '../router';
-import http from './http';
+import http from '../services/http';
 
 export async function logout() {
     const result = await http.post('account/logout');

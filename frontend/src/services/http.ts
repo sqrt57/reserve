@@ -1,16 +1,17 @@
 import axios from 'axios';
-import { getApiUrl } from './path';
 import router from '../router';
 
+const apiUrl = "/api/";
+
 export const rawHttp = axios.create({
-    baseURL: getApiUrl(),
+    baseURL: apiUrl,
     headers: {
         Accept: "application/json",
     },
 });
 
 export const http = axios.create({
-    baseURL: getApiUrl(),
+    baseURL: apiUrl,
     headers: {
         Accept: "application/json",
     },

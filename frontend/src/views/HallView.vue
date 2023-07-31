@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from "vue-router";
-import { logout } from '../services/account';
+import { logout } from '../dataServices/account';
 
 const route = useRoute();
 const router = useRouter();
