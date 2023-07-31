@@ -1,29 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue';
-import { getVisitors, createNewVisitor } from '../dataServices/visitors';
+import { ref, onMounted, reactive, onUnmounted } from 'vue';
+import { createNewVisitor } from '@/dataServices/visitors';
 import { type NewVisitorDto, type ShortVisitorDto } from '../backendDto/visitor';
-import NewVisitorDialog from '../components/NewVisitorDialog.vue'
+import NewVisitorDialog from '@/components/NewVisitorDialog.vue'
+import { visitorsData, startPoll, stopPoll, queryNow } from '@/dataServices/pollVisitors';
 
-const queryInterval = 10000;
+onMounted(() => {
+    startPoll();
+});
 
-const visitorsData = ref<ShortVisitorDto[]>();
-
-async function queryData() {
-    try {
-        const visitors = await getVisitors();
-        visitorsData.value = visitors;
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-async function serialQueryData() {
-    await queryData();
-    setTimeout(serialQueryData, queryInterval);
-}
-
-onMounted(async () => {
-    serialQueryData();
+onUnmounted(() => {
+    stopPoll();
 });
 
 
@@ -35,6 +22,7 @@ function newVisitor() {
 
 async function newVisitorConfirm(data: NewVisitorDto) {
     await createNewVisitor(data);
+    queryNow();
 }
 
 </script>
