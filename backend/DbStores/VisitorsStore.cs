@@ -31,6 +31,20 @@ ORDER BY [Id]
         return (await connection.QueryAsync<Visitor>(query, parameters)).ToList();
     }
 
+    public async Task<Visitor?> GetVisitorById(int visitorId)
+    {
+        var query = @$"
+SELECT * FROM [dbo].[Visitors]
+WHERE [Id] = @Id
+";
+
+        var parameters = new DynamicParameters();
+        parameters.Add("Id", visitorId);
+
+        using var connection = await _dapperConnections.CreateAsync();
+        return await connection.QueryFirstOrDefaultAsync<Visitor>(query, parameters);
+    }
+
     public async Task<Visitor> CreateVisitor(Visitor visitor)
     {
         var query = @"
@@ -77,11 +91,11 @@ SELECT CAST(SCOPE_IDENTITY() as int);
         return visitor;
     }
 
-    public async Task<Visitor> UpdateVisitor(Visitor visitor)
+    public async Task<bool> UpdateVisitor(Visitor visitor)
     {
         var query = @"
 UPDATE [dbo].[Visitors] SET
-    [IsActive] = @IsActive
+    [IsActive] = 1
     ,[BadgeNumber] = @BadgeNumber
     ,[Name] = @Name
     ,[OpenDateTime] = @OpenDateTime
@@ -107,8 +121,7 @@ WHERE [Id] = @Id
         parameters.Add("Paid", visitor.Paid);
 
         using var connection = await _dapperConnections.CreateAsync();
-        var id = await connection.ExecuteScalarAsync<int>(query, parameters);
-        visitor.Id = id;
-        return visitor;
+        var updatedRows = await connection.ExecuteAsync(query, parameters);
+        return updatedRows > 0;
     }
 }

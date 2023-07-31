@@ -1,4 +1,5 @@
 ﻿using backend.DbStores;
+using backend.Exceptions;
 using backend.Models;
 using backend.Services;
 
@@ -36,6 +37,43 @@ public class VisitorsService
         visitor.OpenedByUserId = _userIdAccessor.GetUserId();
         var resultVisitor = await _visitorsStore.CreateVisitor(visitor);
         return EnrichVisitor(resultVisitor, null, now);
+    }
+
+    public async Task<OpenVisitor> CloseVisitor(Visitor visitor)
+    {
+        var now = DateTime.Now;
+        var dbVisitor = await _visitorsStore.GetVisitorById(visitor.Id);
+        if (dbVisitor == null)
+            throw new EntityNotFoundException();
+        var tariff = await _tariffsStore.GetTariff();
+
+        if (dbVisitor.CloseDateTime == null)
+        {
+            dbVisitor.CloseDateTime = now;
+            dbVisitor.ClosedByUserId = _userIdAccessor.GetUserId();
+            dbVisitor.Billed = CalculateBill(tariff, now - dbVisitor.OpenDateTime);
+        }
+        var successful = await _visitorsStore.UpdateVisitor(dbVisitor);
+        if (!successful)
+            throw new DbUpdateException();
+
+        return EnrichVisitor(dbVisitor, null, now);
+    }
+
+    public async Task<OpenVisitor> PaidVisitor(Visitor visitor)
+    {
+        var now = DateTime.Now;
+        var dbVisitor = await _visitorsStore.GetVisitorById(visitor.Id);
+        if (dbVisitor == null)
+            throw new EntityNotFoundException();
+
+        dbVisitor.Paid = visitor.Paid;
+
+        var successful = await _visitorsStore.UpdateVisitor(dbVisitor);
+        if (!successful)
+            throw new DbUpdateException();
+
+        return EnrichVisitor(dbVisitor, null, now);
     }
 
     private static OpenVisitor EnrichVisitor(Visitor visitor, Tariff? tariff, DateTime now)

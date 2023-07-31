@@ -47,3 +47,27 @@ public class NewVisitorDto
             Name = Name,
         };
 }
+
+public class CloseVisitorDto
+{
+    public int Id { get; set; }
+
+    public Visitor ToModel() =>
+        new Visitor()
+        {
+            Id = Id,
+        };
+}
+
+public class PaidVisitorDto
+{
+    public int Id { get; set; }
+    public decimal Paid { get; set; }
+
+    public Visitor ToModel() =>
+        new Visitor()
+        {
+            Id = Id,
+            Paid = Paid,
+        };
+}

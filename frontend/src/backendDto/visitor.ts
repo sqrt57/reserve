@@ -5,7 +5,7 @@ export interface ShortVisitorDto {
     openDateTime: string;
     closeDateTime: string | null;
     billed: number | null;
-    payed: number | null;
+    paid: number | null;
     status: string | null;
     openDuration: string | null;
     openBill: number | null;
@@ -15,4 +15,13 @@ export interface ShortVisitorDto {
 export interface NewVisitorDto {
     badgeNumber: string | null;
     name: string | null;
+}
+
+export interface CloseVisitorDto {
+    id: number;
+}
+
+export interface PaidVisitorDto {
+    id: number;
+    paid: number;
 }

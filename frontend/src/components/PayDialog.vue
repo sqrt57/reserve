@@ -3,26 +3,26 @@ import { ref, reactive } from 'vue';
 import type { FormInstance } from 'element-plus';
 
 const emit = defineEmits<{
-    (e: 'commited', data: INewVisitorForm) : void
+    (e: 'commited', data: IPayForm) : void
 }>();
 
 const formVisible = ref(false);
 
-export interface INewVisitorForm {
-    badgeNumber: string | null;
-    name: string | null;
+export interface IPayForm {
+    id: number,
+    paid: number;
 }
 
-const form = reactive<INewVisitorForm>({
-    badgeNumber: null,
-    name: null,
+const form = reactive<IPayForm>({
+    id: 0,
+    paid: 0,
 });
 
 const formRef = ref<FormInstance>();
 
-function showForm() {
-    form.badgeNumber = null;
-    form.name = null;
+function showForm(initialValues: IPayForm) {
+    form.id = initialValues.id;
+    form.paid = initialValues.paid;
     formVisible.value = true;
 }
 
@@ -40,13 +40,10 @@ defineExpose({ showForm, });
 </script>
 
 <template>
-    <el-dialog v-model="formVisible" title="New visitor">
+    <el-dialog v-model="formVisible" title="Visitor payment">
         <el-form :model="form" ref="formRef">
-            <el-form-item label="Badge number" prop="badgeNumber">
-                <el-input v-model="form.badgeNumber" />
-            </el-form-item>
-            <el-form-item label="Name" prop="name">
-                <el-input v-model="form.name" />
+            <el-form-item label="Paid" prop="paid">
+                <el-input v-model="form.paid" />
             </el-form-item>
         </el-form>
         <template #footer>

@@ -29,4 +29,20 @@ public class VisitorsController
         var resultVisitor = await _visitorsService.NewVisitor(newVisitor.ToModel());
         return ShortVisitorDto.FromModel(resultVisitor);
     }
+
+    [HttpPost()]
+    [Route("close")]
+    public async Task<ShortVisitorDto> CloseVisitor(CloseVisitorDto data)
+    {
+        var resultVisitor = await _visitorsService.CloseVisitor(data.ToModel());
+        return ShortVisitorDto.FromModel(resultVisitor);
+    }
+
+    [HttpPost()]
+    [Route("paid")]
+    public async Task<ShortVisitorDto> PaidVisitor(PaidVisitorDto data)
+    {
+        var resultVisitor = await _visitorsService.PaidVisitor(data.ToModel());
+        return ShortVisitorDto.FromModel(resultVisitor);
+    }
 }
