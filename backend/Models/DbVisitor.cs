@@ -1,10 +1,11 @@
 ﻿namespace backend.Models;
 
-public class Visitor
+public class DbVisitor
 {
     public int Id { get; set; }
     public string? BadgeNumber { get; set; }
     public string? Name { get; set; }
+    public int TariffId { get; set; }
     public DateTime OpenDateTime { get; set; }
     public int OpenedByUserId { get; set; }
     public DateTime? CloseDateTime { get; set; }
@@ -21,14 +22,14 @@ public enum VisitorStatus
     Paid = 2,
 }
 
-public class OpenVisitor
+public class FullVisitor
 {
-    public OpenVisitor(Visitor visitor)
+    public FullVisitor(DbVisitor visitor)
     {
-        Visitor = visitor;
+        DbVisitor = visitor;
     }
 
-    public Visitor Visitor { get; set; }
+    public DbVisitor DbVisitor { get; set; }
     public VisitorStatus Status { get; set; }
     public decimal? OpenBill { get; set; }
     public TimeSpan? OpenDuration { get; set; }

@@ -14,7 +14,7 @@ public class VisitorsStore
         _dapperConnections = dapperConnections;
     }
 
-    public async Task<IReadOnlyCollection<Visitor>> GetOpenVisitors(DateTime? minCloseTime)
+    public async Task<IReadOnlyCollection<DbVisitor>> GetOpenVisitors(DateTime? minCloseTime)
     {
         var minCloseTimeFilter = minCloseTime.HasValue ? "OR [CloseDateTime] > @CloseDateTime" : "";
         var query = @$"
@@ -28,10 +28,10 @@ ORDER BY [Id]
             parameters.Add("CloseDateTime", minCloseTime.Value);
 
         using var connection = await _dapperConnections.CreateAsync();
-        return (await connection.QueryAsync<Visitor>(query, parameters)).ToList();
+        return (await connection.QueryAsync<DbVisitor>(query, parameters)).ToList();
     }
 
-    public async Task<Visitor?> GetVisitorById(int visitorId)
+    public async Task<DbVisitor?> GetVisitorById(int visitorId)
     {
         var query = @$"
 SELECT * FROM [dbo].[Visitors]
@@ -42,16 +42,17 @@ WHERE [Id] = @Id
         parameters.Add("Id", visitorId);
 
         using var connection = await _dapperConnections.CreateAsync();
-        return await connection.QueryFirstOrDefaultAsync<Visitor>(query, parameters);
+        return await connection.QueryFirstOrDefaultAsync<DbVisitor>(query, parameters);
     }
 
-    public async Task<Visitor> CreateVisitor(Visitor visitor)
+    public async Task<DbVisitor> CreateVisitor(DbVisitor visitor)
     {
         var query = @"
 INSERT INTO [dbo].[Visitors]
         ([IsActive]
         ,[BadgeNumber]
         ,[Name]
+        ,[TariffId]
         ,[OpenDateTime]
         ,[OpenedByUserId]
         ,[CloseDateTime]
@@ -63,6 +64,7 @@ INSERT INTO [dbo].[Visitors]
         (1
         ,@BadgeNumber
         ,@Name
+        ,@TariffId
         ,@OpenDateTime
         ,@OpenedByUserId
         ,@CloseDateTime
@@ -77,6 +79,7 @@ SELECT CAST(SCOPE_IDENTITY() as int);
         var parameters = new DynamicParameters();
         parameters.Add("BadgeNumber", visitor.BadgeNumber);
         parameters.Add("Name", visitor.Name);
+        parameters.Add("TariffId", visitor.TariffId);
         parameters.Add("OpenDateTime", visitor.OpenDateTime);
         parameters.Add("OpenedByUserId", visitor.OpenedByUserId);
         parameters.Add("CloseDateTime", visitor.CloseDateTime);
@@ -91,13 +94,14 @@ SELECT CAST(SCOPE_IDENTITY() as int);
         return visitor;
     }
 
-    public async Task<bool> UpdateVisitor(Visitor visitor)
+    public async Task<bool> UpdateVisitor(DbVisitor visitor)
     {
         var query = @"
 UPDATE [dbo].[Visitors] SET
     [IsActive] = 1
     ,[BadgeNumber] = @BadgeNumber
     ,[Name] = @Name
+    ,[TariffId] = @TariffId
     ,[OpenDateTime] = @OpenDateTime
     ,[OpenedByUserId] = @OpenedByUserId
     ,[CloseDateTime] = @CloseDateTime
@@ -112,6 +116,7 @@ WHERE [Id] = @Id
         parameters.Add("Id", visitor.Id);
         parameters.Add("BadgeNumber", visitor.BadgeNumber);
         parameters.Add("Name", visitor.Name);
+        parameters.Add("TariffId", visitor.TariffId);
         parameters.Add("OpenDateTime", visitor.OpenDateTime);
         parameters.Add("OpenedByUserId", visitor.OpenedByUserId);
         parameters.Add("CloseDateTime", visitor.CloseDateTime);

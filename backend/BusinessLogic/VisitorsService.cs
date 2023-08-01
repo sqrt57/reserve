@@ -21,7 +21,7 @@ public class VisitorsService
         _userIdAccessor = userIdAccessor;
     }
 
-    public async Task<IReadOnlyCollection<OpenVisitor>> GetOpenVisitors()
+    public async Task<IReadOnlyCollection<FullVisitor>> GetOpenVisitors()
     {
         var now = DateTime.Now;
         var visitors = await _visitorsStore.GetOpenVisitors(now.AddMinutes(-10));
@@ -30,7 +30,7 @@ public class VisitorsService
         return result;
     }
 
-    public async Task<OpenVisitor> NewVisitor(Visitor visitor)
+    public async Task<FullVisitor> NewVisitor(DbVisitor visitor)
     {
         var now = DateTime.Now;
         visitor.OpenDateTime = now;
@@ -39,7 +39,7 @@ public class VisitorsService
         return EnrichVisitor(resultVisitor, null, now);
     }
 
-    public async Task<OpenVisitor> CloseVisitor(Visitor visitor)
+    public async Task<FullVisitor> CloseVisitor(DbVisitor visitor)
     {
         var now = DateTime.Now;
         var dbVisitor = await _visitorsStore.GetVisitorById(visitor.Id);
@@ -53,6 +53,7 @@ public class VisitorsService
             dbVisitor.ClosedByUserId = _userIdAccessor.GetUserId();
             dbVisitor.Billed = CalculateBill(tariff, now - dbVisitor.OpenDateTime);
         }
+
         var successful = await _visitorsStore.UpdateVisitor(dbVisitor);
         if (!successful)
             throw new DbUpdateException();
@@ -60,7 +61,7 @@ public class VisitorsService
         return EnrichVisitor(dbVisitor, null, now);
     }
 
-    public async Task<OpenVisitor> PaidVisitor(Visitor visitor)
+    public async Task<FullVisitor> PaidVisitor(DbVisitor visitor)
     {
         var now = DateTime.Now;
         var dbVisitor = await _visitorsStore.GetVisitorById(visitor.Id);
@@ -76,7 +77,7 @@ public class VisitorsService
         return EnrichVisitor(dbVisitor, null, now);
     }
 
-    private static OpenVisitor EnrichVisitor(Visitor visitor, Tariff? tariff, DateTime now)
+    private static FullVisitor EnrichVisitor(DbVisitor visitor, DbTariff? tariff, DateTime now)
     {
         var status = visitor.CloseDateTime == null
             ? VisitorStatus.Open
@@ -84,7 +85,7 @@ public class VisitorsService
                 ? VisitorStatus.Closed
                 : VisitorStatus.Paid;
 
-        var result = new OpenVisitor(visitor) {Status = status};
+        var result = new FullVisitor(visitor) {Status = status};
 
         if (status == VisitorStatus.Open)
         {
@@ -101,28 +102,29 @@ public class VisitorsService
         return result;
     }
 
-    private static decimal? CalculateBill(Tariff? tariff, TimeSpan openDuration)
+    private static decimal? CalculateBill(DbTariff? tariff, TimeSpan openDuration)
     {
         if (tariff == null)
             return null;
 
-        var firstHour =  tariff.PricePerHourFirstHour;
-        var secondHour = tariff.PricePerHourSecondHour ?? firstHour;
-        var thirdHour = tariff.PricePerHourThirdHour ?? secondHour;
+        var firstHour = tariff.FirstHour;
+        var secondHour = tariff.SecondHour ?? firstHour;
+        var thirdHour = tariff.ThirdHour ?? secondHour;
+        var fourthHour = tariff.FourthHour ?? thirdHour;
 
-        decimal result;
         var totalHours = (decimal) openDuration.TotalHours;
-        if (totalHours < 0)
-            result = 0;
-        else if (openDuration.TotalHours <= 1)
-            result = firstHour * totalHours;
-        else if (openDuration.TotalHours <= 2)
-            result = firstHour + secondHour * (totalHours - 1);
-        else
-            result = firstHour + secondHour + thirdHour * (totalHours - 2);
 
-        if (tariff.MaxBillTotalTime.HasValue && result > tariff.MaxBillTotalTime.Value)
-            result = tariff.MaxBillTotalTime.Value;
+        var result = totalHours switch
+        {
+            <= 0 => 0,
+            <= 1 => firstHour * totalHours,
+            <= 2 => firstHour + secondHour * (totalHours - 1),
+            <= 3 => firstHour + secondHour + thirdHour * (totalHours - 2),
+            _ => firstHour + secondHour + thirdHour + fourthHour * (totalHours - 2)
+        };
+
+        if (tariff.MaxTimeBill.HasValue && result > tariff.MaxTimeBill.Value)
+            result = tariff.MaxTimeBill.Value;
 
         return result;
     }

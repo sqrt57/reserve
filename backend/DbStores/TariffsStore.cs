@@ -14,7 +14,7 @@ public class TariffsStore
         _dapperConnections = dapperConnections;
     }
 
-    public async Task<Tariff?> GetTariff()
+    public async Task<DbTariff?> GetTariff()
     {
         var query = @"
 SELECT TOP 1 * FROM [dbo].[Tariffs]
@@ -23,6 +23,6 @@ ORDER BY [CreatedDateTime] DESC
 ";
 
         using var connection = await _dapperConnections.CreateAsync();
-        return await connection.QuerySingleOrDefaultAsync<Tariff>(query);
+        return await connection.QuerySingleOrDefaultAsync<DbTariff>(query);
     }
 }
