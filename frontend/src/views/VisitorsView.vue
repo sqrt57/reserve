@@ -4,7 +4,7 @@ import { closeVisitor, createNewVisitor, paidVisitor } from '@/dataServices/visi
 import { type ShortVisitorDto } from '../backendDto/visitor';
 import NewVisitorDialog, { type INewVisitorForm } from '@/components/NewVisitorDialog.vue'
 import PayDialog, { type IPayForm } from '@/components/PayDialog.vue'
-import { visitorsData, startPoll, stopPoll, queryNow } from '@/dataServices/pollVisitors';
+import { visitorsData, startPoll, stopPoll, queryNow, tariffsData } from '@/dataServices/pollVisitors';
 
 // Polling visitors
 
@@ -21,10 +21,15 @@ onUnmounted(() => {
 const newVisitorDialogRef = ref<typeof NewVisitorDialog | null>(null);
 
 function newVisitor() {
-    newVisitorDialogRef.value?.showForm();
+    newVisitorDialogRef.value?.showForm(tariffsData.value);
 }
 
-async function newVisitorConfirm(data: INewVisitorForm) {
+async function newVisitorConfirm(formData: INewVisitorForm) {
+    const data = {
+        badgeNumber: formData.badgeNumber,
+        name: formData.name,
+        tariffId: formData.tariffId ?? 0,
+    };
     await createNewVisitor(data);
     queryNow();
 }
@@ -71,7 +76,7 @@ async function payConfirm(data: IPayForm) {
         </el-table-column>
     </el-table>
 
-    <NewVisitorDialog ref="newVisitorDialogRef" @commited="newVisitorConfirm" />
+    <NewVisitorDialog ref="newVisitorDialogRef" @commited="newVisitorConfirm" tariffs="" />
     <PayDialog ref="payDialogRef" @commited="payConfirm" />
 </template>
 

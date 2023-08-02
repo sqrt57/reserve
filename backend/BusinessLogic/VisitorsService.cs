@@ -24,9 +24,10 @@ public class VisitorsService
     public async Task<IReadOnlyCollection<FullVisitor>> GetOpenVisitors()
     {
         var now = DateTime.Now;
-        var visitors = await _visitorsStore.GetOpenVisitors(now.AddMinutes(-10));
-        var tariff = await _tariffsStore.GetTariff();
-        var result = visitors.Select(visitor => EnrichVisitor(visitor, tariff, now)).ToList();
+        var visitorTariffs = await _visitorsStore.GetOpenVisitors(now.AddMinutes(-10));
+        var result = visitorTariffs
+            .Select(visitorTariff => EnrichVisitor(visitorTariff.Visitor, visitorTariff.Tariff, now))
+            .ToList();
         return result;
     }
 
@@ -42,16 +43,18 @@ public class VisitorsService
     public async Task<FullVisitor> CloseVisitor(DbVisitor visitor)
     {
         var now = DateTime.Now;
-        var dbVisitor = await _visitorsStore.GetVisitorById(visitor.Id);
-        if (dbVisitor == null)
+        var visitorTariff = await _visitorsStore.GetVisitorById(visitor.Id);
+        if (visitorTariff == null)
             throw new EntityNotFoundException();
-        var tariff = await _tariffsStore.GetTariff();
+
+        var dbVisitor = visitorTariff.Value.Visitor;
+        var dbTariff = visitorTariff.Value.Tariff;
 
         if (dbVisitor.CloseDateTime == null)
         {
             dbVisitor.CloseDateTime = now;
             dbVisitor.ClosedByUserId = _userIdAccessor.GetUserId();
-            dbVisitor.Billed = CalculateBill(tariff, now - dbVisitor.OpenDateTime);
+            dbVisitor.Billed = CalculateBill(dbTariff, now - dbVisitor.OpenDateTime);
         }
 
         var successful = await _visitorsStore.UpdateVisitor(dbVisitor);
@@ -64,9 +67,12 @@ public class VisitorsService
     public async Task<FullVisitor> PaidVisitor(DbVisitor visitor)
     {
         var now = DateTime.Now;
-        var dbVisitor = await _visitorsStore.GetVisitorById(visitor.Id);
-        if (dbVisitor == null)
+        var visitorTariff = await _visitorsStore.GetVisitorById(visitor.Id);
+        if (visitorTariff == null)
             throw new EntityNotFoundException();
+
+        var dbVisitor = visitorTariff.Value.Visitor;
+        var dbTariff = visitorTariff.Value.Tariff;
 
         dbVisitor.Paid = visitor.Paid;
 
@@ -74,7 +80,7 @@ public class VisitorsService
         if (!successful)
             throw new DbUpdateException();
 
-        return EnrichVisitor(dbVisitor, null, now);
+        return EnrichVisitor(dbVisitor, dbTariff, now);
     }
 
     private static FullVisitor EnrichVisitor(DbVisitor visitor, DbTariff? tariff, DateTime now)

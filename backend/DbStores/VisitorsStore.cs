@@ -14,13 +14,15 @@ public class VisitorsStore
         _dapperConnections = dapperConnections;
     }
 
-    public async Task<IReadOnlyCollection<DbVisitor>> GetOpenVisitors(DateTime? minCloseTime)
+    public async Task<IReadOnlyCollection<(DbVisitor Visitor, DbTariff Tariff)>> GetOpenVisitors(DateTime? minCloseTime)
     {
-        var minCloseTimeFilter = minCloseTime.HasValue ? "OR [CloseDateTime] > @CloseDateTime" : "";
+        var minCloseTimeFilter = minCloseTime.HasValue ? "OR V.[CloseDateTime] > @CloseDateTime" : "";
         var query = @$"
-SELECT * FROM [dbo].[Visitors]
-WHERE [IsActive] = 1 AND ([CloseDateTime] IS NULL OR [Paid] IS NULL {minCloseTimeFilter})
-ORDER BY [Id]
+SELECT V.*, T.* FROM [dbo].[Visitors] V
+INNER JOIN [dbo].[Tariffs] T
+ON V.[TariffId] = t.[Id]
+WHERE V.[IsActive] = 1 AND (V.[CloseDateTime] IS NULL OR V.[Paid] IS NULL {minCloseTimeFilter})
+ORDER BY V.[OpenDateTime]
 ";
 
         var parameters = new DynamicParameters();
@@ -28,21 +30,37 @@ ORDER BY [Id]
             parameters.Add("CloseDateTime", minCloseTime.Value);
 
         using var connection = await _dapperConnections.CreateAsync();
-        return (await connection.QueryAsync<DbVisitor>(query, parameters)).ToList();
+        return (await connection.QueryAsync<DbVisitor, DbTariff, (DbVisitor, DbTariff)>(
+                query,
+                (visitor, tariff) => (visitor, tariff),
+                param: parameters,
+                splitOn: "Id"))
+            .ToList();
     }
 
-    public async Task<DbVisitor?> GetVisitorById(int visitorId)
+    public async Task<(DbVisitor Visitor, DbTariff Tariff)?> GetVisitorById(int visitorId)
     {
         var query = @$"
-SELECT * FROM [dbo].[Visitors]
-WHERE [Id] = @Id
+SELECT V.*, T.* FROM [dbo].[Visitors] V
+INNER JOIN [dbo].[Tariffs] T
+ON V.[TariffId] = t.[Id]
+WHERE V.[Id] = @Id
 ";
 
         var parameters = new DynamicParameters();
         parameters.Add("Id", visitorId);
 
         using var connection = await _dapperConnections.CreateAsync();
-        return await connection.QueryFirstOrDefaultAsync<DbVisitor>(query, parameters);
+
+        await connection.QueryFirstOrDefaultAsync<DbVisitor>(query, parameters);
+        var result = await connection.QueryAsync<DbVisitor, DbTariff, (DbVisitor, DbTariff)>(
+            query,
+            (visitor, tariff) => (visitor, tariff),
+            param: parameters,
+            splitOn: "Id");
+        return result.FirstOrDefault();
+
+
     }
 
     public async Task<DbVisitor> CreateVisitor(DbVisitor visitor)

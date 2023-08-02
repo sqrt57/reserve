@@ -9,17 +9,24 @@ namespace backend.Controllers;
 public class VisitorsController
 {
     private readonly VisitorsService _visitorsService;
+    private readonly TariffsService _tariffsService;
 
-    public VisitorsController(VisitorsService visitorsService)
+    public VisitorsController(VisitorsService visitorsService, TariffsService tariffsService)
     {
         _visitorsService = visitorsService;
+        _tariffsService = tariffsService;
     }
 
     [HttpGet]
-    public async Task<IReadOnlyCollection<ShortVisitorDto>> Get()
+    public async Task<VisitorsIndexDto> Get()
     {
         var visitors = await _visitorsService.GetOpenVisitors();
-        return visitors.Select(ShortVisitorDto.FromModel).ToList();
+        var tariffs = await _tariffsService.GetTariffs();
+        return new VisitorsIndexDto()
+        {
+            Visitors = visitors.Select(ShortVisitorDto.FromModel).ToList(),
+            Tariffs = tariffs.Select(TariffDto.FromModel).ToList(),
+        };
     }
 
     [HttpPost()]

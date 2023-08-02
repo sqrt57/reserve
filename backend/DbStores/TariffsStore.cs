@@ -14,15 +14,15 @@ public class TariffsStore
         _dapperConnections = dapperConnections;
     }
 
-    public async Task<DbTariff?> GetTariff()
+    public async Task<IReadOnlyCollection<DbTariff>> GetTariffs()
     {
         var query = @"
-SELECT TOP 1 * FROM [dbo].[Tariffs]
+SELECT * FROM [dbo].[Tariffs]
 WHERE [IsActive] = 1
 ORDER BY [CreatedDateTime] DESC
 ";
 
         using var connection = await _dapperConnections.CreateAsync();
-        return await connection.QuerySingleOrDefaultAsync<DbTariff>(query);
+        return (await connection.QueryAsync<DbTariff>(query)).ToList();
     }
 }

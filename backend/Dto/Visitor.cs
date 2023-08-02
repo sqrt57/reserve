@@ -37,16 +37,45 @@ public class ShortVisitorDto
     }
 }
 
+public class TariffDto
+{
+    public required int Id { get; init; }
+    public required string Name { get; init; }
+    public required int Order { get; set; }
+    public required decimal FirstHour { get; init; }
+    public required decimal? SecondHour { get; init; }
+    public required decimal? ThirdHour { get; init; }
+    public required decimal? FourthHour { get; init; }
+    public required decimal? MaxTimeBill { get; init; }
+
+    public static TariffDto FromModel(DbTariff tariff)
+    {
+        return new TariffDto
+        {
+            Id = tariff.Id,
+            Name = tariff.Name,
+            Order = tariff.Order,
+            FirstHour = tariff.FirstHour,
+            SecondHour = tariff.SecondHour,
+            ThirdHour = tariff.ThirdHour,
+            FourthHour = tariff.FourthHour,
+            MaxTimeBill = tariff.MaxTimeBill,
+        };
+    }
+}
+
 public class NewVisitorDto
 {
     public string? BadgeNumber { get; set; }
     public string? Name { get; set; }
+    public int TariffId { get; set; }
 
     public DbVisitor ToModel() =>
         new DbVisitor()
         {
             BadgeNumber = BadgeNumber,
             Name = Name,
+            TariffId = TariffId,
         };
 }
 
@@ -72,4 +101,10 @@ public class PaidVisitorDto
             Id = Id,
             Paid = Paid,
         };
+}
+
+public class VisitorsIndexDto
+{
+    public required List<ShortVisitorDto> Visitors { get; init; }
+    public required List<TariffDto> Tariffs { get; init; }
 }

@@ -22,6 +22,7 @@ public class BusinessLayerModule : Module
         builder.RegisterType<VisitorsStore>().AsSelf().InstancePerLifetimeScope();
         builder.RegisterType<TariffsStore>().AsSelf().InstancePerLifetimeScope();
 
+        builder.RegisterType<TariffsService>().AsSelf().InstancePerLifetimeScope();
         builder.RegisterType<VisitorsService>().AsSelf().InstancePerLifetimeScope();
     }
 }
