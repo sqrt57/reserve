@@ -31,16 +31,23 @@ public class VisitorsService
         return result;
     }
 
-    public async Task<FullVisitor> NewVisitor(DbVisitor visitor)
+    public async Task<FullVisitor> NewVisitor(NewVisitor visitor)
     {
         var now = DateTime.Now;
-        visitor.OpenDateTime = now;
-        visitor.OpenedByUserId = _userIdAccessor.GetUserId();
-        var resultVisitor = await _visitorsStore.CreateVisitor(visitor);
+        var dbVisitor = new DbVisitor
+        {
+            BadgeNumber = visitor.BadgeNumber,
+            Name = visitor.Name,
+            TariffId = visitor.TariffId,
+            OpenDateTime = now,
+            OpenedByUserId = _userIdAccessor.GetUserId(),
+        };
+        var id = await _visitorsStore.CreateVisitor(dbVisitor);
+        var resultVisitor = dbVisitor with {Id = id};
         return EnrichVisitor(resultVisitor, null, now);
     }
 
-    public async Task<FullVisitor> CloseVisitor(DbVisitor visitor)
+    public async Task<FullVisitor> CloseVisitor(CloseVisitor visitor)
     {
         var now = DateTime.Now;
         var visitorTariff = await _visitorsStore.GetVisitorById(visitor.Id);
@@ -50,21 +57,25 @@ public class VisitorsService
         var dbVisitor = visitorTariff.Value.Visitor;
         var dbTariff = visitorTariff.Value.Tariff;
 
-        if (dbVisitor.CloseDateTime == null)
+        if (dbVisitor.CloseDateTime != null)
+            throw new BusinessLogicException();
+
+        dbVisitor = dbVisitor with
         {
-            dbVisitor.CloseDateTime = now;
-            dbVisitor.ClosedByUserId = _userIdAccessor.GetUserId();
-            dbVisitor.Billed = CalculateBill(dbTariff, now - dbVisitor.OpenDateTime);
-        }
+            CloseDateTime = now,
+            ClosedByUserId = _userIdAccessor.GetUserId(),
+            Billed = CalculateBill(dbTariff, now - dbVisitor.OpenDateTime),
+        };
 
         var successful = await _visitorsStore.UpdateVisitor(dbVisitor);
         if (!successful)
             throw new DbUpdateException();
 
         return EnrichVisitor(dbVisitor, null, now);
+
     }
 
-    public async Task<FullVisitor> PaidVisitor(DbVisitor visitor)
+    public async Task<FullVisitor> PaidVisitor(PaidVisitor visitor)
     {
         var now = DateTime.Now;
         var visitorTariff = await _visitorsStore.GetVisitorById(visitor.Id);
@@ -74,7 +85,7 @@ public class VisitorsService
         var dbVisitor = visitorTariff.Value.Visitor;
         var dbTariff = visitorTariff.Value.Tariff;
 
-        dbVisitor.Paid = visitor.Paid;
+        dbVisitor = dbVisitor with {Paid = visitor.Paid};
 
         var successful = await _visitorsStore.UpdateVisitor(dbVisitor);
         if (!successful)
@@ -85,25 +96,37 @@ public class VisitorsService
 
     private static FullVisitor EnrichVisitor(DbVisitor visitor, DbTariff? tariff, DateTime now)
     {
-        var status = visitor.CloseDateTime == null
-            ? VisitorStatus.Open
-            : visitor.Paid == null
-                ? VisitorStatus.Closed
-                : VisitorStatus.Paid;
+        VisitorStatus status;
+        TimeSpan? openDuration = null;
+        Decimal? openBill = null;
+        TimeSpan? closedDuration = null;
 
-        var result = new FullVisitor(visitor) {Status = status};
-
-        if (status == VisitorStatus.Open)
+        if (visitor.CloseDateTime == null)
         {
-            var openDuration = now - visitor.OpenDateTime;
-            result.OpenDuration = openDuration;
-            result.OpenBill = CalculateBill(tariff, openDuration);
+            status = VisitorStatus.Open;
+            openDuration = now - visitor.OpenDateTime;
+            openBill = CalculateBill(tariff, openDuration.Value);
+        }
+        else if (visitor.Paid == null)
+        {
+            status = VisitorStatus.Closed;
+            closedDuration = visitor.CloseDateTime - visitor.OpenDateTime;
+        }
+        else
+        {
+            status = VisitorStatus.Paid;
+            closedDuration = visitor.CloseDateTime - visitor.OpenDateTime;
+
         }
 
-        if (status != VisitorStatus.Open)
+        var result = new FullVisitor
         {
-            result.ClosedDuration = visitor.CloseDateTime - visitor.OpenDateTime;
-        }
+            DbVisitor = visitor,
+            Status = status,
+            OpenDuration = openDuration,
+            OpenBill = openBill,
+            ClosedDuration = closedDuration,
+        };
 
         return result;
     }

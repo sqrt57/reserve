@@ -1,18 +1,18 @@
 ﻿namespace backend.Models;
 
-public class DbVisitor
+public record DbVisitor
 {
-    public int Id { get; set; }
-    public string? BadgeNumber { get; set; }
-    public string? Name { get; set; }
-    public int TariffId { get; set; }
-    public DateTime OpenDateTime { get; set; }
-    public int OpenedByUserId { get; set; }
-    public DateTime? CloseDateTime { get; set; }
-    public int? ClosedByUserId { get; set; }
-    public int? PaymentAcceptedByUserId { get; set; }
-    public decimal? Billed { get; set; }
-    public decimal? Paid { get; set; }
+    public int Id { get; init; }
+    public string? BadgeNumber { get; init; }
+    public string? Name { get; init; }
+    public int TariffId { get; init; }
+    public DateTime OpenDateTime { get; init; }
+    public int OpenedByUserId { get; init; }
+    public DateTime? CloseDateTime { get; init; }
+    public int? ClosedByUserId { get; init; }
+    public int? PaymentAcceptedByUserId { get; init; }
+    public decimal? Billed { get; init; }
+    public decimal? Paid { get; init; }
 }
 
 public enum VisitorStatus
@@ -22,16 +22,30 @@ public enum VisitorStatus
     Paid = 2,
 }
 
-public class FullVisitor
+public record FullVisitor
 {
-    public FullVisitor(DbVisitor visitor)
-    {
-        DbVisitor = visitor;
-    }
-
-    public DbVisitor DbVisitor { get; set; }
-    public VisitorStatus Status { get; set; }
-    public decimal? OpenBill { get; set; }
-    public TimeSpan? OpenDuration { get; set; }
-    public TimeSpan? ClosedDuration { get; set; }
+    public required DbVisitor DbVisitor { get; init; }
+    public required VisitorStatus Status { get; init; }
+    public required decimal? OpenBill { get; init; }
+    public required TimeSpan? OpenDuration { get; init; }
+    public required TimeSpan? ClosedDuration { get; init; }
 }
+
+public record NewVisitor
+{
+    public required string? BadgeNumber { get; init; }
+    public required string? Name { get; init; }
+    public required int TariffId { get; init; }
+}
+
+public record CloseVisitor
+{
+    public required int Id { get; init; }
+}
+
+public record PaidVisitor
+{
+    public required int Id { get; init; }
+    public required decimal Paid { get; init; }
+}
+

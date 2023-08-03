@@ -70,8 +70,8 @@ public class NewVisitorDto
     public string? Name { get; set; }
     public int TariffId { get; set; }
 
-    public DbVisitor ToModel() =>
-        new DbVisitor()
+    public NewVisitor ToModel() =>
+        new NewVisitor()
         {
             BadgeNumber = BadgeNumber,
             Name = Name,
@@ -83,8 +83,8 @@ public class CloseVisitorDto
 {
     public int Id { get; set; }
 
-    public DbVisitor ToModel() =>
-        new DbVisitor()
+    public CloseVisitor ToModel() =>
+        new CloseVisitor()
         {
             Id = Id,
         };
@@ -95,8 +95,8 @@ public class PaidVisitorDto
     public int Id { get; set; }
     public decimal Paid { get; set; }
 
-    public DbVisitor ToModel() =>
-        new DbVisitor()
+    public PaidVisitor ToModel() =>
+        new PaidVisitor
         {
             Id = Id,
             Paid = Paid,

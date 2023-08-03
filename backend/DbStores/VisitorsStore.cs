@@ -63,7 +63,7 @@ WHERE V.[Id] = @Id
 
     }
 
-    public async Task<DbVisitor> CreateVisitor(DbVisitor visitor)
+    public async Task<int> CreateVisitor(DbVisitor visitor)
     {
         var query = @"
 INSERT INTO [dbo].[Visitors]
@@ -108,8 +108,7 @@ SELECT CAST(SCOPE_IDENTITY() as int);
 
         using var connection = await _dapperConnections.CreateAsync();
         var id = await connection.ExecuteScalarAsync<int>(query, parameters);
-        visitor.Id = id;
-        return visitor;
+        return id;
     }
 
     public async Task<bool> UpdateVisitor(DbVisitor visitor)
