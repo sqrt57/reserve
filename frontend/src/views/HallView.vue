@@ -29,6 +29,7 @@ const handleSelect = (index: string) => {
         <el-menu :default-active="activeIndex" mode="horizontal" @select="handleSelect" :ellipsis="false">
             <el-menu-item index="visitors">Visitors</el-menu-item>
             <el-menu-item index="visitors-history">Today</el-menu-item>
+            <el-menu-item index="products">Products</el-menu-item>
             <div class="flex-grow" />
             <el-menu-item index="logout">Logout</el-menu-item>
         </el-menu>

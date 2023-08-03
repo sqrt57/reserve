@@ -2,9 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginView from '../views/LoginView.vue';
 import HallView from '../views/HallView.vue';
 import VisitorsView from '../views/VisitorsView.vue';
-import WeatherView from '../views/WeatherView.vue';
 import VisitorsHistoryView from '../views/VisitorsHistoryView.vue';
 import AdminView from '../views/AdminView.vue';
+import ProductsView from '../views/ProductsView.vue';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,6 +33,11 @@ const router = createRouter({
                     path: 'visitors-history',
                     name: 'visitors-history',
                     component: VisitorsHistoryView,
+                },
+                {
+                    path: 'products',
+                    name: 'products',
+                    component: ProductsView,
                 },
             ],
         },
