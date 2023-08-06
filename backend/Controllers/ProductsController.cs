@@ -19,8 +19,23 @@ public class ProductsController
     [Route("all")]
     public async Task<IReadOnlyCollection<ProductDto>> GetAll()
     {
-        var products = await _productsService.GetAllProducts();
+        var products = await _productsService.GetAll();
         return products.Select(ProductDto.FromModel).ToList();
     }
 
+    [HttpGet]
+    [Route("in-stock")]
+    public async Task<IReadOnlyCollection<ProductDto>> GetInStock()
+    {
+        var products = await _productsService.GetInStock();
+        return products.Select(ProductDto.FromModel).ToList();
+    }
+
+    [HttpPost]
+    [Route("new")]
+    public async Task<ProductDto> CreateNew(NewProductDto newProduct)
+    {
+        var product = await _productsService.CreateNew(newProduct.ToModel());
+        return ProductDto.FromModel(product);
+    }
 }
