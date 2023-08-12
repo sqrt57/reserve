@@ -20,6 +20,8 @@ adminOption.AddAlias("-a");
 
 var rootCommand = new RootCommand("Users management utility for Mars reservation application.");
 
+// Add user
+
 var addCommand = new Command("add", "Add new user.")
 {
     loginOption,
@@ -27,10 +29,34 @@ var addCommand = new Command("add", "Add new user.")
     adminOption,
 };
 rootCommand.AddCommand(addCommand);
-
 addCommand.SetHandler(async (login, password, isAdmin) =>
 {
     await new Users().Add(login, password, isAdmin);
 }, loginOption, passwordOption, adminOption);
+
+// Change password
+
+var changeCommand = new Command("change", "Change user password. Unlock user.")
+{
+    loginOption,
+    passwordOption,
+};
+rootCommand.AddCommand(changeCommand);
+changeCommand.SetHandler(async (login, password) =>
+{
+    await new Users().Change(login, password);
+}, loginOption, passwordOption);
+
+// Change password
+
+var unlockCommand = new Command("unlock", "Unlock user.")
+{
+    loginOption,
+};
+rootCommand.AddCommand(unlockCommand);
+unlockCommand.SetHandler(async (login) =>
+{
+    await new Users().Unlock(login);
+}, loginOption);
 
 return await rootCommand.InvokeAsync(args);
