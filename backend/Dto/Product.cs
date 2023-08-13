@@ -78,3 +78,9 @@ public record UpdateProductOrderDto
             Order = Order,
         };
 }
+
+public record DeleteProductDto
+{
+    public required int Id { get; init; }
+
+}

@@ -63,8 +63,8 @@ defineExpose({ showForm, });
         </el-form>
         <template #footer>
             <span class="dialog-footer">
+                <el-button type="primary" @click="confirm()">OK</el-button>
                 <el-button @click="cancel()">Cancel</el-button>
-                <el-button type="primary" @click="confirm()">Confirm</el-button>
             </span>
         </template>
     </el-dialog>

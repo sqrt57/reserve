@@ -58,19 +58,24 @@ public class ProductsService
             CreatedDateTime = now,
             CreatedByUserId = _userIdAccessor.GetUserId(),
         };
-        var result = await _productsStore.UpdateProduct(dbProduct);
+        var result = await _productsStore.Update(dbProduct);
         if (result == null)
             throw new DbUpdateException();
         return result;
     }
 
-    public async Task<DbProduct?> UpdateInStock(UpdateProductInStock updateProduct)
+    public async Task Delete(int productId)
     {
-        throw new NotImplementedException();
+        await _productsStore.Delete(productId);
     }
 
-    public async Task<DbProduct?> UpdateOrder(UpdateProductOrder[] productOrders)
+    public async Task UpdateInStock(UpdateProductInStock product)
     {
-        throw new NotImplementedException();
+        await _productsStore.UpdateInStock(product);
+    }
+
+    public async Task UpdateOrder(UpdateProductOrder[] products)
+    {
+        await _productsStore.UpdateOrder(products);
     }
 }

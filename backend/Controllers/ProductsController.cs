@@ -46,4 +46,27 @@ public class ProductsController
         var product = await _productsService.Update(newProduct.ToModel());
         return ProductDto.FromModel(product);
     }
+
+    [HttpPost]
+    [Route("delete")]
+    public async Task Delete(DeleteProductDto product)
+    {
+        await _productsService.Delete(product.Id);
+    }
+
+    [HttpPost]
+    [Route("update-in-stock")]
+    public async Task UpdateInStock(UpdateProductInStockDto product)
+    {
+        await _productsService.UpdateInStock(product.ToModel());
+    }
+
+    [HttpPost]
+    [Route("update-order")]
+    public async Task UpdateOrder(IEnumerable<UpdateProductOrderDto> products)
+    {
+        await _productsService.UpdateOrder(
+            products.Select(p => p.ToModel()).ToArray());
+    }
 }
+

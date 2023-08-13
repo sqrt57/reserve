@@ -65,9 +65,9 @@ SELECT * FROM [dbo].[Products] WHERE [Id] = @Id;
         return await connection.QueryFirstOrDefaultAsync<DbProduct>(query, parameters);
     }
 
-    public async Task<DbProduct> UpdateProduct(DbProduct product)
+    public async Task<DbProduct> Update(DbProduct product)
     {
-	    var query = @"
+        var query = @"
 UPDATE [dbo].[Products]
 SET [IsActive] = 0
 WHERE [Id] = @Id;
@@ -101,14 +101,64 @@ DECLARE @NewId int = SCOPE_IDENTITY();
 SELECT * FROM [dbo].[Products] WHERE [Id] = @NewId;
 ";
 
+        var parameters = new DynamicParameters();
+        parameters.Add("Id", product.Id);
+        parameters.Add("CreatedDateTime", product.CreatedDateTime);
+        parameters.Add("CreatedByUserId", product.CreatedByUserId);
+        parameters.Add("Name", product.Name);
+        parameters.Add("Price", product.Price);
+
+        using var connection = await _dapperConnections.CreateAsync();
+        return await connection.QueryFirstOrDefaultAsync<DbProduct>(query, parameters);
+    }
+
+    public async Task Delete(int productId)
+    {
+        var query = @"
+UPDATE [dbo].[Products]
+SET [IsActive] = 0
+WHERE [Id] = @Id;
+";
+
+        var parameters = new DynamicParameters();
+        parameters.Add("Id", productId);
+
+        using var connection = await _dapperConnections.CreateAsync();
+        await connection.ExecuteAsync(query, parameters);
+    }
+
+    public async Task UpdateInStock(UpdateProductInStock product)
+    {
+	    var query = @"
+UPDATE [dbo].[Products]
+SET [InStock] = @InStock
+WHERE [Id] = @Id;
+";
+
 	    var parameters = new DynamicParameters();
 	    parameters.Add("Id", product.Id);
-	    parameters.Add("CreatedDateTime", product.CreatedDateTime);
-	    parameters.Add("CreatedByUserId", product.CreatedByUserId);
-	    parameters.Add("Name", product.Name);
-	    parameters.Add("Price", product.Price);
+	    parameters.Add("InStock", product.InStock);
 
 	    using var connection = await _dapperConnections.CreateAsync();
-	    return await connection.QueryFirstOrDefaultAsync<DbProduct>(query, parameters);
+	    await connection.ExecuteAsync(query, parameters);
+    }
+
+    public async Task UpdateOrder(UpdateProductOrder[] products)
+    {
+	    var query = @"
+UPDATE [dbo].[Products]
+SET [Order] = @Order
+WHERE [Id] = @Id;
+";
+
+	    using var connection = await _dapperConnections.CreateAsync();
+	    foreach (var product in products)
+	    {
+		    var parameters = new DynamicParameters();
+		    parameters.Add("Id", product.Id);
+		    parameters.Add("Order", product.Order);
+
+		    await connection.ExecuteAsync(query, parameters);
+	    }
     }
 }

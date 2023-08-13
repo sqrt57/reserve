@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     EditProductDialog: typeof import('./src/components/EditProductDialog.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
+    ElCheckbox: typeof import('element-plus/es')['ElCheckbox']
     ElContainer: typeof import('element-plus/es')['ElContainer']
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElForm: typeof import('element-plus/es')['ElForm']
