@@ -38,4 +38,12 @@ public class ProductsController
         var product = await _productsService.CreateNew(newProduct.ToModel());
         return ProductDto.FromModel(product);
     }
+
+    [HttpPost]
+    [Route("update")]
+    public async Task<ProductDto> Update(UpdateProductDto newProduct)
+    {
+        var product = await _productsService.Update(newProduct.ToModel());
+        return ProductDto.FromModel(product);
+    }
 }

@@ -64,4 +64,51 @@ SELECT * FROM [dbo].[Products] WHERE [Id] = @Id;
         using var connection = await _dapperConnections.CreateAsync();
         return await connection.QueryFirstOrDefaultAsync<DbProduct>(query, parameters);
     }
+
+    public async Task<DbProduct> UpdateProduct(DbProduct product)
+    {
+	    var query = @"
+UPDATE [dbo].[Products]
+SET [IsActive] = 0
+WHERE [Id] = @Id;
+
+DECLARE @Order [int];
+DEClARE @InStock [bit];
+
+SELECT @Order = [Order], @InStock = [InStock]
+FROM [dbo].[Products]
+WHERE [Id] = @Id;
+
+INSERT INTO [dbo].[Products]
+	([IsActive]
+	,[CreatedDateTime]
+	,[CreatedByUserId]
+	,[Order]
+	,[Name]
+	,[Price]
+	,[InStock])
+VALUES
+	(1
+	,@CreatedDateTime
+	,@CreatedByUserId
+	,@Order
+	,@Name
+	,@Price
+	,@InStock);
+
+DECLARE @NewId int = SCOPE_IDENTITY();
+
+SELECT * FROM [dbo].[Products] WHERE [Id] = @NewId;
+";
+
+	    var parameters = new DynamicParameters();
+	    parameters.Add("Id", product.Id);
+	    parameters.Add("CreatedDateTime", product.CreatedDateTime);
+	    parameters.Add("CreatedByUserId", product.CreatedByUserId);
+	    parameters.Add("Name", product.Name);
+	    parameters.Add("Price", product.Price);
+
+	    using var connection = await _dapperConnections.CreateAsync();
+	    return await connection.QueryFirstOrDefaultAsync<DbProduct>(query, parameters);
+    }
 }

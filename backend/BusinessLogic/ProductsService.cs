@@ -46,9 +46,22 @@ public class ProductsService
         return result;
     }
 
-    public async Task<DbProduct?> Update(UpdateProduct updateProduct)
+    public async Task<DbProduct> Update(UpdateProduct updateProduct)
     {
-        throw new NotImplementedException();
+        var now = DateTime.Now;
+        var dbProduct = new DbProduct
+        {
+            Id = updateProduct.Id,
+            Name = updateProduct.Name,
+            Price = updateProduct.Price,
+            InStock = true,
+            CreatedDateTime = now,
+            CreatedByUserId = _userIdAccessor.GetUserId(),
+        };
+        var result = await _productsStore.UpdateProduct(dbProduct);
+        if (result == null)
+            throw new DbUpdateException();
+        return result;
     }
 
     public async Task<DbProduct?> UpdateInStock(UpdateProductInStock updateProduct)
