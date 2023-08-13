@@ -38,7 +38,7 @@ ORDER BY V.[OpenDateTime]
             .ToList();
     }
 
-    public async Task<(DbVisitor Visitor, DbTariff Tariff)?> GetVisitorById(int visitorId)
+    public async Task<(DbVisitor? Visitor, DbTariff? Tariff)> GetVisitorById(int visitorId)
     {
         var query = @$"
 SELECT V.*, T.* FROM [dbo].[Visitors] V
@@ -59,8 +59,6 @@ WHERE V.[Id] = @Id
             param: parameters,
             splitOn: "Id");
         return result.FirstOrDefault();
-
-
     }
 
     public async Task<int> CreateVisitor(DbVisitor visitor)

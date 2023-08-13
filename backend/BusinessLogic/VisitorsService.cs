@@ -51,11 +51,14 @@ public class VisitorsService
     {
         var now = DateTime.Now;
         var visitorTariff = await _visitorsStore.GetVisitorById(visitor.Id);
-        if (visitorTariff == null)
-            throw new EntityNotFoundException();
 
-        var dbVisitor = visitorTariff.Value.Visitor;
-        var dbTariff = visitorTariff.Value.Tariff;
+        var dbVisitor = visitorTariff.Visitor;
+        var dbTariff = visitorTariff.Tariff;
+
+        if (dbVisitor == null)
+            throw new EntityNotFoundException();
+        if (dbTariff == null)
+            throw new EntityNotFoundException();
 
         if (dbVisitor.CloseDateTime != null)
             throw new BusinessLogicException();
@@ -79,11 +82,14 @@ public class VisitorsService
     {
         var now = DateTime.Now;
         var visitorTariff = await _visitorsStore.GetVisitorById(visitor.Id);
-        if (visitorTariff == null)
-            throw new EntityNotFoundException();
 
-        var dbVisitor = visitorTariff.Value.Visitor;
-        var dbTariff = visitorTariff.Value.Tariff;
+        var dbVisitor = visitorTariff.Visitor;
+        var dbTariff = visitorTariff.Tariff;
+
+        if (dbVisitor == null)
+            throw new EntityNotFoundException();
+        if (dbTariff == null)
+            throw new EntityNotFoundException();
 
         dbVisitor = dbVisitor with {Paid = visitor.Paid};
 
@@ -97,35 +103,28 @@ public class VisitorsService
     private static FullVisitor EnrichVisitor(DbVisitor visitor, DbTariff? tariff, DateTime now)
     {
         VisitorStatus status;
-        TimeSpan? openDuration = null;
-        Decimal? openBill = null;
-        TimeSpan? closedDuration = null;
+        TimeSpan duration;
+        Decimal? billed;
 
         if (visitor.CloseDateTime == null)
         {
             status = VisitorStatus.Open;
-            openDuration = now - visitor.OpenDateTime;
-            openBill = CalculateBill(tariff, openDuration.Value);
-        }
-        else if (visitor.Paid == null)
-        {
-            status = VisitorStatus.Closed;
-            closedDuration = visitor.CloseDateTime - visitor.OpenDateTime;
+            duration = now - visitor.OpenDateTime;
+            billed = CalculateBill(tariff, duration);
         }
         else
         {
-            status = VisitorStatus.Paid;
-            closedDuration = visitor.CloseDateTime - visitor.OpenDateTime;
-
+            duration = visitor.CloseDateTime.Value - visitor.OpenDateTime;
+            billed = visitor.Billed;
+            status = visitor.Paid == null ? VisitorStatus.Closed : VisitorStatus.Paid;
         }
 
         var result = new FullVisitor
         {
             DbVisitor = visitor,
             Status = status,
-            OpenDuration = openDuration,
-            OpenBill = openBill,
-            ClosedDuration = closedDuration,
+            Duration = duration,
+            Billed = billed,
         };
 
         return result;

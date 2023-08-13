@@ -8,9 +8,7 @@ export interface ShortVisitorDto {
     billed: number | null;
     paid: number | null;
     status: string | null;
-    openDuration: string | null;
-    openBill: number | null;
-    closedDuration: string | null;
+    durationSeconds: number | null;
 }
 
 export interface TariffDto {

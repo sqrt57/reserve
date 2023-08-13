@@ -2,20 +2,18 @@
 
 namespace backend.Dto;
 
-public class ShortVisitorDto
+public record ShortVisitorDto
 {
-    public int Id { get; set; }
-    public string? BadgeNumber { get; set; }
-    public string? Name { get; set; }
-    public int TariffId { get; set; }
-    public DateTime OpenDateTime { get; set; }
-    public DateTime? CloseDateTime { get; set; }
-    public decimal? Billed { get; set; }
-    public decimal? Paid { get; set; }
-    public string? Status { get; set; }
-    public TimeSpan? OpenDuration { get; set; }
-    public decimal? OpenBill { get; set; }
-    public TimeSpan? ClosedDuration { get; set; }
+    public required int Id { get; init; }
+    public required string? BadgeNumber { get; init; }
+    public required string? Name { get; init; }
+    public required int TariffId { get; init; }
+    public required DateTime OpenDateTime { get; init; }
+    public required DateTime? CloseDateTime { get; init; }
+    public required decimal? Billed { get; init; }
+    public required decimal? Paid { get; init; }
+    public required string Status { get; init; }
+    public required double? DurationSeconds { get; init; }
 
     public static ShortVisitorDto FromModel(FullVisitor visitor)
     {
@@ -27,12 +25,10 @@ public class ShortVisitorDto
             TariffId = visitor.DbVisitor.TariffId,
             OpenDateTime = visitor.DbVisitor.OpenDateTime,
             CloseDateTime = visitor.DbVisitor.CloseDateTime,
-            Billed = visitor.DbVisitor.Billed,
+            Billed = visitor.Billed,
             Paid = visitor.DbVisitor.Paid,
             Status = visitor.Status.ToString(),
-            OpenDuration = visitor.OpenDuration,
-            OpenBill = visitor.OpenBill,
-            ClosedDuration = visitor.ClosedDuration,
+            DurationSeconds = visitor.Duration?.TotalSeconds,
         };
     }
 }

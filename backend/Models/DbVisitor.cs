@@ -26,9 +26,8 @@ public record FullVisitor
 {
     public required DbVisitor DbVisitor { get; init; }
     public required VisitorStatus Status { get; init; }
-    public required decimal? OpenBill { get; init; }
-    public required TimeSpan? OpenDuration { get; init; }
-    public required TimeSpan? ClosedDuration { get; init; }
+    public required TimeSpan? Duration { get; init; }
+    public required decimal? Billed { get; init; }
 }
 
 public record NewVisitor

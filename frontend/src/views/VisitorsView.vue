@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { DateTime, Duration } from 'luxon';
 import { closeVisitor, createNewVisitor, paidVisitor } from '@/dataServices/visitors';
 import { type ShortVisitorDto } from '../backendDto/visitor';
 import NewVisitorDialog, { type INewVisitorForm } from '@/components/NewVisitorDialog.vue'
@@ -15,6 +16,62 @@ onMounted(() => {
 onUnmounted(() => {
     stopPoll();
 });
+
+// Visitors list
+
+interface IVisitor {
+    dto: ShortVisitorDto;
+    badgeNumber: string;
+    name: string;
+    tariff: string;
+    openDateTime: string;
+    closeDateTime: string;
+    duration: string;
+    billed: string;
+    paid: string;
+}
+
+const visitors = computed(() => visitorsData.value?.map(GetVisitorRow));
+
+function GetVisitorRow(dto: ShortVisitorDto): IVisitor {
+    const visitor: IVisitor = {
+        dto: dto,
+        badgeNumber: dto.badgeNumber ?? "",
+        name: dto.name ?? "",
+        tariff: formatTariff(dto.tariffId),
+        openDateTime: formatDateTime(dto.openDateTime),
+        closeDateTime: formatDateTime(dto.closeDateTime),
+        duration: formatDurationSeconds(dto.durationSeconds),
+        billed: formatMoney(dto.billed),
+        paid: formatMoney(dto.paid),
+    };
+    return visitor;
+}
+
+function formatDateTime(source: string | null): string {
+    if (!source) return "";
+    const date = DateTime.fromISO(source);
+    const now = DateTime.now();
+    if (date.year === now.year && date.month === now.month && date.day === now.day) {
+        return date.toFormat("H:mm");
+    } else {
+        return date.toFormat("y-MM-dd H:mm");
+    }
+}
+
+function formatDurationSeconds(source: number | null): string {
+    if (!source) return "";
+    return Duration.fromMillis(source * 1000).toFormat("h'h' mm'm'");
+}
+
+function formatMoney(source: number | null): string {
+    if (!source) return "";
+    return Math.floor(source).toString();
+}
+
+function formatTariff(tariffId: number): string {
+    return tariffsData.value?.find(t => t.id === tariffId)?.name ?? "";
+}
 
 // Create new visitor
 
@@ -36,8 +93,8 @@ async function newVisitorConfirm(formData: INewVisitorForm) {
 
 // Close visitor
 
-async function close(row: ShortVisitorDto) {
-    await closeVisitor({ id: row.id, });
+async function close(row: IVisitor) {
+    await closeVisitor({ id: row.dto.id, });
     queryNow();
 }
 
@@ -45,8 +102,8 @@ async function close(row: ShortVisitorDto) {
 
 const payDialogRef = ref<typeof PayDialog | null>(null);
 
-function pay(row: ShortVisitorDto) {
-    payDialogRef.value?.showForm({ id: row.id, paid: row.billed, });
+function pay(row: IVisitor) {
+    payDialogRef.value?.showForm({ id: row.dto.id, paid: row.billed, });
 }
 
 async function payConfirm(data: IPayForm) {
@@ -60,12 +117,13 @@ async function payConfirm(data: IPayForm) {
     <div class="toolbar">
         <el-button type="primary" @click="newVisitor()">New visitor</el-button>
     </div>
-    <el-table :data="visitorsData" style="width: 100%">
+    <el-table :data="visitors" style="width: 100%">
         <el-table-column prop="badgeNumber" label="Badge" />
         <el-table-column prop="name" label="Name" />
+        <el-table-column prop="tariff" label="Tariff" />
         <el-table-column prop="openDateTime" label="Opened" />
         <el-table-column prop="closeDateTime" label="Closed" />
-        <el-table-column prop="openBill" label="Open Bill" />
+        <el-table-column prop="duration" label="Time" />
         <el-table-column prop="billed" label="Bill" />
         <el-table-column prop="paid" label="Paid" />
         <el-table-column label="Operations">
