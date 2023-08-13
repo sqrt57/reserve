@@ -29,7 +29,7 @@ ORDER BY [Order]
     public async Task<DbProduct?> InsertWithMaxOrder(DbProduct product)
     {
         var query = @"
-DECLARE @Order int = (SELECT MAX([Order]) FROM [sbo].[Products]) + 1;
+DECLARE @Order int = (SELECT MAX([Order]) FROM [dbo].[Products]) + 1;
 IF @Order IS NULL SET @order = 1;
 
 INSERT INTO [dbo].[Products]
