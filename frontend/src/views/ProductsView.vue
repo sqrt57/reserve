@@ -126,13 +126,4 @@ async function downClick(index: number, row: ProductDto) {
     display: flex;
     flex-direction: row;
 }
-
-.el-button {
-    order: 2;
-    margin-left: 10px;
-}
-
-.el-button--primary {
-    order: 1;
-}
 </style>

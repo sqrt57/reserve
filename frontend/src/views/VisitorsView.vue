@@ -32,6 +32,8 @@ interface IVisitor {
 }
 
 const visitors = computed(() => visitorsData.value?.map(GetVisitorRow));
+const numVisitors = computed(() => visitorsData.value?.filter(v => v.status === "Open").length);
+const numClosedVisitors = computed(() => visitorsData.value?.filter(v => v.status === "Closed").length);
 
 function GetVisitorRow(dto: ShortVisitorDto): IVisitor {
     const visitor: IVisitor = {
@@ -93,6 +95,10 @@ async function newVisitorConfirm(formData: INewVisitorForm) {
 
 // Close visitor
 
+function canClose(row: IVisitor): boolean {
+    return row.dto.status === "Open";
+}
+
 async function close(row: IVisitor) {
     await closeVisitor({ id: row.dto.id, });
     queryNow();
@@ -101,6 +107,10 @@ async function close(row: IVisitor) {
 // Process payment
 
 const payDialogRef = ref<typeof PayDialog | null>(null);
+
+function canPay(row: IVisitor): boolean {
+    return row.dto.status === "Closed";
+}
 
 function pay(row: IVisitor) {
     payDialogRef.value?.showForm({ id: row.dto.id, paid: row.billed, });
@@ -116,6 +126,9 @@ async function payConfirm(data: IPayForm) {
 <template>
     <div class="toolbar">
         <el-button type="primary" @click="newVisitor()">New visitor</el-button>
+        <div class="empty"></div>
+        <div class="visitors closed" v-show="numClosedVisitors > 0">{{numClosedVisitors}} waiting payment</div>
+        <div class="visitors open">{{numVisitors}} visitors</div>
     </div>
     <el-table :data="visitors" style="width: 100%">
         <el-table-column prop="badgeNumber" label="Badge" />
@@ -128,8 +141,8 @@ async function payConfirm(data: IPayForm) {
         <el-table-column prop="paid" label="Paid" />
         <el-table-column label="Operations">
             <template #default="scope">
-                <el-button size="small" type="primary" @click="close(scope.row)">Close</el-button>
-                <el-button size="small" type="success" @click="pay(scope.row)">Paid</el-button>
+                <el-button size="small" type="primary" @click="close(scope.row)" :disabled="!canClose(scope.row)">Close</el-button>
+                <el-button size="small" type="success" @click="pay(scope.row)" :disabled="!canPay(scope.row)">Paid</el-button>
             </template>
         </el-table-column>
     </el-table>
@@ -138,10 +151,32 @@ async function payConfirm(data: IPayForm) {
     <PayDialog ref="payDialogRef" @commited="payConfirm" />
 </template>
 
-<style>
+<style scoped>
 .toolbar {
     margin: 10px 0;
     display: flex;
     flex-direction: row;
+}
+.toolbar .empty {
+    flex-grow: 1;
+}
+.toolbar .visitors {
+    margin-right: 15px;
+    border: 1px solid;
+    border-radius: 3px;
+    padding: 0px 10px;
+    font-size: 14px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.toolbar .closed {
+    background-color: var(--el-color-warning-light-9);
+    border-color: var(--el-color-warning-light-8);
+}
+.toolbar .open {
+    background-color: var(--el-color-success-light-9);
+    border-color: var(--el-color-success-light-8);
 }
 </style>

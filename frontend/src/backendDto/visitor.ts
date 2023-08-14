@@ -7,7 +7,7 @@ export interface ShortVisitorDto {
     closeDateTime: string | null;
     billed: number | null;
     paid: number | null;
-    status: string | null;
+    status: "Open" | "Closed" | "Paid" | null;
     durationSeconds: number | null;
 }
 

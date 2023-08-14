@@ -23,6 +23,7 @@ declare module 'vue' {
     ElSelect: typeof import('element-plus/es')['ElSelect']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
+    ElTag: typeof import('element-plus/es')['ElTag']
     NewVisitorDialog: typeof import('./src/components/NewVisitorDialog.vue')['default']
     PayDialog: typeof import('./src/components/PayDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
